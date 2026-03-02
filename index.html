@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Controle de Medição</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet" />
+
+  <!-- CSS Modules -->
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/auth.css" />
+  <link rel="stylesheet" href="css/topbar.css" />
+  <link rel="stylesheet" href="css/drawer.css" />
+  <link rel="stylesheet" href="css/modal.css" />
+  <link rel="stylesheet" href="css/toast.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="stylesheet" href="css/table.css" />
+  <link rel="stylesheet" href="css/sla.css" />
+</head>
+
+<body>
+  <!-- ==================== LOGIN SCREEN ==================== -->
+  <div id="login-screen" class="hidden">
+    <canvas id="bg-canvas"
+      style="position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; opacity: 0.5;"></canvas>
+    <div id="vignette"
+      style="position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 40%, transparent 45%, rgba(180,192,210,0.18) 100%); pointer-events: none; z-index: 1;">
+    </div>
+
+    <div class="login-box" style="z-index: 10; position: relative;">
+      <div
+        style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 30px; text-align: center;">
+        <span
+          style="font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500; letter-spacing: 0.22em; text-transform: uppercase; color: #94a3b8;">Grupo
+          GPS</span>
+        <span
+          style="font-family: 'Inter', sans-serif; font-size: 32px; font-weight: 800; letter-spacing: -0.02em; color: #0a2fa8; line-height: 1.2;">MECANIZADA</span>
+        <div
+          style="width: 32px; height: 2px; background: #0a2fa8; border-radius: 2px; opacity: 0.25; margin-top: 6px; margin-bottom: 12px;">
+        </div>
+        <span
+          style="font-size: 13px; font-weight: 600; color: #475569; letter-spacing: 0.05em; text-transform: uppercase;">Controle
+          de Medição</span>
+      </div>
+      <form id="login-form">
+        <div class="login-input-group" id="group-name" style="display: none;">
+          <label>Nome</label>
+          <input type="text" id="login-name" autocomplete="name" />
+        </div>
+        <div class="login-input-group">
+          <label>E-mail</label>
+          <input type="email" id="login-user" required autocomplete="username" />
+        </div>
+        <div class="login-input-group">
+          <label>Senha</label>
+          <input type="password" id="login-pass" required autocomplete="current-password" />
+        </div>
+        <button type="submit" class="login-btn" id="login-submit">Entrar</button>
+        <div style="text-align: center; margin-top: 15px; font-size: 13px;">
+          <a href="#" id="toggle-register" style="color: #0f3868; text-decoration: none; font-weight: 600;">Criar uma
+            conta</a>
+        </div>
+      </form>
+      <div class="login-error" id="login-error"></div>
+    </div>
+    <div class="login-footer">
+      Desenvolvido por Warlison Abreu | Icaro Bernardo - Grupo GPS
+    </div>
+  </div>
+
+  <div id="app">
+    <!-- ==================== LOADING SCREEN ==================== -->
+    <div id="loading-screen" style="background:#f4f7fa; z-index: 9999;">
+      <div class="loading-content" style="max-width:280px;">
+        <div class="loading-bar-container"
+          style="background:rgba(15,56,104,0.08); border-radius:6px; overflow:hidden; height:3px;">
+          <div class="loading-bar"
+            style="background:linear-gradient(90deg,#0f3868,#2563eb); border-radius:6px; height:100%;"></div>
+        </div>
+        <div id="loading-status"
+          style="color:#94a3b8; font-size:12px; font-weight:500; margin-top:14px; text-align:center; letter-spacing:0.02em;">
+          Conectando...</div>
+      </div>
+    </div>
+
+    <!-- ==================== TOPBAR ==================== -->
+    <div id="topbar">
+      <div id="topbar-left">
+        <button id="nav-menu-btn" class="topbar-icon-btn" aria-label="Menu de Navegação" title="Menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="logo" id="logo-home" style="cursor:pointer;" title="Voltar ao Dashboard">
+        <span class="logo-gps">Grupo GPS</span>
+        <span class="logo-mecanizada">Mecanizada</span>
+        <div class="logo-divider"></div>
+        <span class="logo-gestao">Controle de Medição</span>
+      </div>
+
+      <div id="nav-menu-overlay" class="nav-menu-overlay hidden">
+        <div class="nav-menu-panel">
+          <div class="nav-menu-header">
+            <span>Módulos</span>
+            <button id="nav-menu-close" class="topbar-icon-btn" aria-label="Fechar Menu">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <div class="nav-menu-body">
+            <div class="nav-menu-section">
+              <div class="nav-menu-section-title">Medição</div>
+              <button class="nav-menu-item active" data-view="dashboard">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                  <rect x="3" y="3" width="7" height="7" rx="1" />
+                  <rect x="14" y="3" width="7" height="7" rx="1" />
+                  <rect x="3" y="14" width="7" height="7" rx="1" />
+                  <rect x="14" y="14" width="7" height="7" rx="1" />
+                </svg>
+                Visão Geral
+              </button>
+              <button class="nav-menu-item" data-view="table">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+                Tabela <span class="sb-pill" id="sb-count"
+                  style="margin-left:auto;font-size:10px;background:rgba(0,0,0,0.05);padding:2px 6px;border-radius:10px;">—</span>
+              </button>
+              <button class="nav-menu-item" data-view="sla">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                  <circle cx="12" cy="12" r="9" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 7v5l3 3" />
+                </svg>
+                SLA
+              </button>
+            </div>
+          </div>
+          <div class="nav-menu-footer">
+            <div id="nav-menu-user" class="nav-menu-user-info"></div>
+            <button id="logout-btn"
+              style="margin-top:10px; width:100%; border:none; background:#f1f5f9; padding:8px; border-radius:6px; cursor:pointer; color:#475569; font-weight:600;">Sair</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="topbar-right">
+        <button class="btn btn-primary" id="btn-novo-bm"
+          style="display:flex;align-items:center;gap:6px;border-radius:6px;background:var(--blue);color:#fff;border:none;padding:6px 12px;font-weight:600;font-size:12px;cursor:pointer;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
+          Novo BM
+        </button>
+      </div>
+    </div>
+
+    <!-- ==================== MAIN CONTENT ==================== -->
+    <div id="main"
+      style="padding-top: var(--topbar-height); padding-left: 22px; padding-right: 22px; height: 100vh; overflow-y: auto;">
+
+      <!-- FILTER BAR -->
+      <div class="fb" style="display:flex;align-items:center;gap:8px;margin: 18px 0;flex-wrap:wrap;">
+        <select class="fsel" id="filterCR">
+          <option value="all">Todos os CRs</option>
+        </select>
+        <select class="fsel" id="filterStage">
+          <option value="all">Todas as Etapas</option>
+        </select>
+        <input class="finp" id="searchInput" placeholder="Buscar descrição, pedido, folha…" style="display:none;" />
+        <div class="fb-right" id="fb-right" style="margin-left:auto;font-size:12px;color:var(--text-2);"></div>
+      </div>
+
+      <div id="dashboard-view" class="view active"></div>
+      <div id="table-view" class="view hidden"></div>
+      <div id="sla-view" class="view hidden"></div>
+
+    </div>
+
+    <!-- ==================== MODAL ==================== -->
+    <div id="modal-overlay" class="modal-overlay hidden">
+      <div id="modal" class="modal-box">
+        <div class="modal-header">
+          <div class="modal-title" id="mtitle">Novo Boletim de Medição</div>
+          <button class="close-modal">✕</button>
+        </div>
+        <div class="modal-body" id="modal-body-content">
+          <input type="hidden" id="eid" />
+          <div class="fgrid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div class="ff" style="display:flex;flex-direction:column;gap:4px;"><label
+                style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-3);">CR</label><input
+                class="finput" id="f-cr" placeholder="Ex: 18512" /></div>
+            <div class="ff" style="display:flex;flex-direction:column;gap:4px;"><label
+                style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-3);">Período</label><input
+                class="finput" id="f-periodo" placeholder="16.01.2026 à 15.02.2026" /></div>
+            <div class="ff" style="display:flex;flex-direction:column;gap:4px;"><label
+                style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-3);">Pedido</label><input
+                class="finput" id="f-pedido" /></div>
+            <div class="ff" style="display:flex;flex-direction:column;gap:4px;"><label
+                style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-3);">Folha de
+                Registro</label><input class="finput" id="f-folha" /></div>
+            <div class="ff" style="display:flex;flex-direction:column;gap:4px;grid-column:1/-1;"><label
+                style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-3);">Descrição da
+                Folha</label><input class="finput" id="f-descricao" /></div>
+            <div style="grid-column:1/-1;height:1px;background:var(--border);margin:4px 0;"></div>
+            <div class="ff" style="display:flex;flex-direction:column;gap:4px;"><label
+                style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-3);">Valor a Medir
+                (R$)</label><input class="finput" type="number" id="f-medir" placeholder="0,00" /></div>
+            <div class="ff" style="display:flex;flex-direction:column;gap:4px;"><label
+                style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-3);">Data de
+                Aprovação</label><input class="finput" id="f-aprovacao" placeholder="DD.MM.AAAA" /></div>
+            <div class="ff" style="display:flex;flex-direction:column;gap:4px;"><label
+                style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-3);">Data de Envio ao
+                Cliente</label><input class="finput" id="f-envio" placeholder="DD.MM.AAAA" /></div>
+            <div class="ff" style="display:flex;flex-direction:column;gap:4px;"><label
+                style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-3);">Valor BM Enviado
+                (R$)</label><input class="finput" type="number" id="f-valorBM" /></div>
+            <div class="ff" style="display:flex;flex-direction:column;gap:4px;"><label
+                style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-3);">Valor Glosa
+                (R$)</label><input class="finput" type="number" id="f-glosa" /></div>
+            <div class="ff" style="display:flex;flex-direction:column;gap:4px;"><label
+                style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-3);">Responsável</label><input
+                class="finput" id="f-responsavel" placeholder="Nome" /></div>
+            <div class="ff" style="display:flex;flex-direction:column;gap:4px;grid-column:1/-1;"><label
+                style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-3);">Motivo da
+                Glosa</label><input class="finput" id="f-motivo" /></div>
+            <div class="ff" style="display:flex;flex-direction:column;gap:4px;grid-column:1/-1;"><label
+                style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-3);">Etapa do
+                Workflow</label><select class="finput" id="f-stage" style="height:34px"></select></div>
+          </div>
+        </div>
+        <div class="modal-footer" style="display:flex;gap:8px;margin-top:20px;">
+          <button class="btn btn-primary" id="save-bm-btn"
+            style="flex:1;background:var(--blue);color:#fff;border:none;border-radius:6px;font-weight:600;padding:10px;">Salvar
+            Boletim</button>
+          <button class="btn close-modal"
+            style="padding:10px 20px;background:#fff;border:1px solid var(--border);border-radius:6px;font-weight:600;color:var(--text-2);">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== TOAST ==================== -->
+    <div id="toast-container"></div>
+  </div>
+
+  <style>
+    /* Add local overrides for inputs from old Controle de Medicao */
+    .fsel,
+    .finp,
+    .finput {
+      height: 32px;
+      padding: 0 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--bg-1);
+      color: var(--text-1);
+      outline: none;
+      transition: border-color .1s;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+    }
+
+    .fsel {
+      min-width: 148px;
+    }
+
+    .finp {
+      width: 220px;
+    }
+
+    .fsel:focus,
+    .finp:focus,
+    .finput:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(29, 78, 216, .08);
+    }
+
+    .finput {
+      height: 34px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .view.hidden {
+      display: none !important;
+    }
+  </style>
+
+  <!-- JS Libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- JS Modules -->
+  <script src="js/config.js"></script>
+  <script src="js/supabase-config.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/helpers.js"></script>
+  <script src="js/dashboard.js"></script>
+  <script src="js/table.js"></script>
+  <script src="js/navigation.js"></script>
+  <script src="js/particles.js"></script>
+  <script src="js/app.js"></script>
+</body>
+
+</html>
