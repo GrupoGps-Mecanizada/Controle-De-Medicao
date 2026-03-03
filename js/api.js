@@ -88,7 +88,9 @@ const API = {
             valor_glosa: r.valorGlosa,
             motivo_glosa: r.motivoGlosa,
             responsavel: r.responsavel,
-            stage: r.stage
+            stage: r.stage,
+            updated_at: new Date().toISOString(),
+            updated_by: window.Auth && window.Auth.currentUser ? window.Auth.currentUser.nome : 'Sistema'
         };
     },
     mapFromDB(r) {
@@ -107,7 +109,9 @@ const API = {
             valorGlosa: r.valor_glosa,
             motivoGlosa: r.motivo_glosa,
             responsavel: r.responsavel,
-            stage: r.stage
+            stage: r.stage,
+            updatedAt: r.updated_at,
+            updatedBy: r.updated_by
         };
     }
 };

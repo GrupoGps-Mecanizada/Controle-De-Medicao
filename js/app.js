@@ -52,6 +52,18 @@ window.App = {
 
         const saveBtn = document.getElementById('save-bm-btn');
         if (saveBtn) saveBtn.addEventListener('click', () => this.saveRecord());
+
+        const pInicio = document.getElementById('f-periodo-inicio');
+        if (pInicio) {
+            pInicio.addEventListener('change', (e) => {
+                if (e.target.value) {
+                    const envio = document.getElementById('f-envio');
+                    if (envio) {
+                        envio.value = addBusinessDays(e.target.value, 3);
+                    }
+                }
+            });
+        }
     },
 
     popStages() {
@@ -64,7 +76,7 @@ window.App = {
     openNew() {
         document.getElementById('mtitle').textContent = 'Novo Boletim de Medição';
         document.getElementById('eid').value = '';
-        ['cr', 'mes', 'periodo', 'pedido', 'folha', 'descricao', 'medir', 'aprovacao', 'envio', 'valorBM', 'glosa', 'responsavel', 'motivo'].forEach(f => {
+        ['cr', 'mes', 'periodo-inicio', 'periodo-fim', 'pedido', 'folha', 'descricao', 'medir', 'aprovacao', 'envio', 'valorBM', 'glosa', 'responsavel', 'motivo'].forEach(f => {
             const el = document.getElementById('f-' + f);
             if (el) el.value = '';
         });
@@ -81,10 +93,26 @@ window.App = {
         document.getElementById('eid').value = id;
 
         const m = {
-            cr: r.cr, mes: r.mes, periodo: r.periodo, pedido: r.pedido, folha: r.folhaRegistro, descricao: r.descricao,
-            medir: r.medir, aprovacao: r.dataAprovacao, envio: r.dataEnvio, valorBM: r.valorBM,
-            glosa: r.valorGlosa, responsavel: r.responsavel, motivo: r.motivoGlosa
+            cr: r.cr,
+            mes: parseBRMonthToYM(r.mes),
+            'periodo-inicio': '',
+            'periodo-fim': '',
+            pedido: r.pedido, folha: r.folhaRegistro, descricao: r.descricao,
+            medir: formatCurrencyInput(r.medir),
+            aprovacao: parseDateToYMD(r.dataAprovacao),
+            envio: parseDateToYMD(r.dataEnvio),
+            valorBM: formatCurrencyInput(r.valorBM),
+            glosa: formatCurrencyInput(r.valorGlosa),
+            responsavel: r.responsavel, motivo: r.motivoGlosa
         };
+
+        if (r.periodo) {
+            const p = r.periodo.split(' à ');
+            if (p.length === 2) {
+                m['periodo-inicio'] = parseDateToYMD(p[0].trim());
+                m['periodo-fim'] = parseDateToYMD(p[1].trim());
+            }
+        }
 
         Object.entries(m).forEach(([k, v]) => {
             const el = document.getElementById('f-' + k);
@@ -98,18 +126,22 @@ window.App = {
 
     async saveRecord() {
         const id = document.getElementById('eid').value;
+        const pIni = formatYMDToBR(document.getElementById('f-periodo-inicio').value);
+        const pFim = formatYMDToBR(document.getElementById('f-periodo-fim').value);
+        const pStr = (pIni && pFim) ? `${pIni} à ${pFim}` : '';
+
         const d = {
             cr: document.getElementById('f-cr').value,
-            mes: document.getElementById('f-mes').value,
-            periodo: document.getElementById('f-periodo').value,
+            mes: formatMonthToBR(document.getElementById('f-mes').value),
+            periodo: pStr,
             pedido: document.getElementById('f-pedido').value,
             folhaRegistro: document.getElementById('f-folha').value,
             descricao: document.getElementById('f-descricao').value,
-            medir: parseFloat(document.getElementById('f-medir').value) || 0,
-            dataAprovacao: document.getElementById('f-aprovacao').value,
-            dataEnvio: document.getElementById('f-envio').value,
-            valorBM: document.getElementById('f-valorBM').value,
-            valorGlosa: document.getElementById('f-glosa').value,
+            medir: parseCurrency(document.getElementById('f-medir').value),
+            dataAprovacao: formatYMDToBR(document.getElementById('f-aprovacao').value),
+            dataEnvio: formatYMDToBR(document.getElementById('f-envio').value),
+            valorBM: parseCurrency(document.getElementById('f-valorBM').value),
+            valorGlosa: parseCurrency(document.getElementById('f-glosa').value),
             responsavel: document.getElementById('f-responsavel').value,
             motivoGlosa: document.getElementById('f-motivo').value,
             stage: document.getElementById('f-stage').value

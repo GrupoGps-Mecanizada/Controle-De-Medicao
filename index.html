@@ -167,6 +167,9 @@
 
       <!-- FILTER BAR -->
       <div class="fb" style="display:flex;align-items:center;gap:8px;margin: 18px 0;flex-wrap:wrap;">
+        <select class="fsel" id="filterMes">
+          <option value="all">Todos os Meses</option>
+        </select>
         <select class="fsel" id="filterCR">
           <option value="all">Todos os CRs</option>
         </select>
@@ -199,10 +202,13 @@
                 class="finput" id="f-cr" placeholder="Ex: 18512" /></div>
             <div class="ff" style="display:flex;flex-direction:column;gap:4px;"><label
                 style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-3);">Mês</label><input
-                class="finput" id="f-mes" placeholder="Ex: Fev/26" /></div>
+                class="finput" type="month" id="f-mes" /></div>
             <div class="ff" style="display:flex;flex-direction:column;gap:4px;"><label
-                style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-3);">Período</label><input
-                class="finput" id="f-periodo" placeholder="16.01.2026 à 15.02.2026" /></div>
+                style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-3);"> Início
+                Período</label><input class="finput" type="date" id="f-periodo-inicio" /></div>
+            <div class="ff" style="display:flex;flex-direction:column;gap:4px;"><label
+                style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-3);"> Fim
+                Período</label><input class="finput" type="date" id="f-periodo-fim" /></div>
             <div class="ff" style="display:flex;flex-direction:column;gap:4px;"><label
                 style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-3);">Pedido</label><input
                 class="finput" id="f-pedido" /></div>
@@ -215,19 +221,22 @@
             <div style="grid-column:1/-1;height:1px;background:var(--border);margin:4px 0;"></div>
             <div class="ff" style="display:flex;flex-direction:column;gap:4px;"><label
                 style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-3);">Valor a Medir
-                (R$)</label><input class="finput" type="number" id="f-medir" placeholder="0,00" /></div>
+                (R$)</label><input class="finput" type="text" id="f-medir" placeholder="0,00"
+                oninput="maskCurrency(this)" /></div>
             <div class="ff" style="display:flex;flex-direction:column;gap:4px;"><label
                 style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-3);">Data de
-                Aprovação</label><input class="finput" id="f-aprovacao" placeholder="DD.MM.AAAA" /></div>
+                Aprovação</label><input class="finput" type="date" id="f-aprovacao" /></div>
             <div class="ff" style="display:flex;flex-direction:column;gap:4px;"><label
                 style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-3);">Data de Envio ao
-                Cliente</label><input class="finput" id="f-envio" placeholder="DD.MM.AAAA" /></div>
+                Cliente</label><input class="finput" type="date" id="f-envio" /></div>
             <div class="ff" style="display:flex;flex-direction:column;gap:4px;"><label
                 style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-3);">Valor BM Enviado
-                (R$)</label><input class="finput" type="number" id="f-valorBM" /></div>
+                (R$)</label><input class="finput" type="text" id="f-valorBM" placeholder="0,00"
+                oninput="maskCurrency(this)" /></div>
             <div class="ff" style="display:flex;flex-direction:column;gap:4px;"><label
                 style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-3);">Valor Glosa
-                (R$)</label><input class="finput" type="number" id="f-glosa" /></div>
+                (R$)</label><input class="finput" type="text" id="f-glosa" placeholder="0,00"
+                oninput="maskCurrency(this)" /></div>
             <div class="ff" style="display:flex;flex-direction:column;gap:4px;"><label
                 style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-3);">Responsável</label><input
                 class="finput" id="f-responsavel" placeholder="Nome" /></div>

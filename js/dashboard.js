@@ -1,6 +1,6 @@
 const Dashboard = {
     render() {
-        const records = ControlState.records || [];
+        const records = this.getFiltered() || [];
         const n = records.length;
 
         // KPI Calculations
@@ -10,7 +10,7 @@ const Dashboard = {
         const totalGlosa = records.reduce((s, r) => s + (parseFloat(r.valorGlosa) || 0), 0);
 
         // Get unique CRs
-        const crs = [...new Set(records.map(r => r.cr))].sort();
+        const crs = [...new Set(records.map(r => r.cr).filter(Boolean))].sort();
 
         const html = `<div class="kpi-row">
       <div class="kpi kb"><div class="klabel">Total Geral</div><div class="kvalue md">${fmt(totalGeral)}</div><div class="kfoot">${n} boletins cadastrados</div></div>
@@ -49,5 +49,22 @@ const Dashboard = {
 
         const container = document.getElementById('dashboard-view');
         if (container) container.innerHTML = html;
+    },
+
+    getFiltered() {
+        const { cr, stage, mes, q } = ControlState.filters;
+        const lowerQ = (q || '').toLowerCase();
+        return (ControlState.records || []).filter(r => {
+            const matchCR = !cr || cr === 'all' || r.cr === String(cr);
+            const matchStage = !stage || stage === 'all' || r.stage === String(stage);
+            const matchMes = !mes || mes === 'all' || r.mes === String(mes);
+            const matchQ = !lowerQ ||
+                (r.descricao && r.descricao.toLowerCase().includes(lowerQ)) ||
+                (r.pedido && r.pedido.includes(lowerQ)) ||
+                (r.cr && r.cr.includes(lowerQ)) ||
+                (r.mes && r.mes.toLowerCase().includes(lowerQ)) ||
+                (r.folhaRegistro && r.folhaRegistro.includes(lowerQ));
+            return matchCR && matchStage && matchMes && matchQ;
+        });
     }
 };

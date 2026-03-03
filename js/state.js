@@ -4,6 +4,7 @@ window.ControlState = {
     filters: {
         cr: 'all',
         stage: 'all',
+        mes: 'all',
         q: ''
     }
 };

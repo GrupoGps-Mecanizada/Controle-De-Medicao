@@ -24,6 +24,7 @@ const Navigation = {
 
         const filterCR = document.getElementById('filterCR');
         const filterStage = document.getElementById('filterStage');
+        const filterMes = document.getElementById('filterMes');
         const searchInput = document.getElementById('searchInput');
 
         if (filterCR) filterCR.addEventListener('change', (e) => {
@@ -33,6 +34,11 @@ const Navigation = {
 
         if (filterStage) filterStage.addEventListener('change', (e) => {
             ControlState.filters.stage = e.target.value;
+            window.App.renderCurrentView();
+        });
+
+        if (filterMes) filterMes.addEventListener('change', (e) => {
+            ControlState.filters.mes = e.target.value;
             window.App.renderCurrentView();
         });
 
@@ -52,16 +58,29 @@ const Navigation = {
     buildFilters() {
         const cr = document.getElementById('filterCR');
         const st = document.getElementById('filterStage');
-        if (!cr || !st) return;
+        const ms = document.getElementById('filterMes');
+        if (!cr || !st || !ms) return;
 
         const pc = ControlState.filters.cr;
         const ps = ControlState.filters.stage;
+        const pm = ControlState.filters.mes;
 
-        // Get unique CRs
-        const crs = [...new Set((ControlState.records || []).map(r => r.cr))].sort();
+        // Get unique CRs and Months
+        const crs = [...new Set((ControlState.records || []).map(r => r.cr).filter(Boolean))].sort();
+        const meses = [...new Set((ControlState.records || []).map(r => r.mes).filter(Boolean))].sort((a, b) => {
+            const getD = (m) => {
+                const parts = m.split('/');
+                if (parts.length !== 2) return 0;
+                const mlist = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+                const i = mlist.indexOf(parts[0]);
+                return parseInt('20' + parts[1]) * 100 + i;
+            };
+            return getD(b) - getD(a); // Sort descending
+        });
 
-        cr.innerHTML = '<option value="all">Todos os CRs</option>' + crs.map(c => `<option value="${c}"${pc === c ? ' selected' : ''}>CR ${c}</option>`).join('');
+        cr.innerHTML = '<option value="all">Todos os CRs</option>' + crs.map(c => `<option value="${c}"${pc === String(c) ? ' selected' : ''}>CR ${c}</option>`).join('');
         st.innerHTML = '<option value="all">Todas as Etapas</option>' + STAGES.map(s => `<option value="${s.id}"${ps === s.id ? ' selected' : ''}>${s.label}</option>`).join('');
+        ms.innerHTML = '<option value="all">Todos os Meses</option>' + meses.map(m => `<option value="${m}"${pm === String(m) ? ' selected' : ''}>${m}</option>`).join('');
     },
 
     updateTopBar() {
