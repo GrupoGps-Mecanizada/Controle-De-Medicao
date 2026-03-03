@@ -1,5 +1,7 @@
 const API = {
     async loadRecords() {
+        await this.loadFixedCRs();
+
         // For now try Supabase, if missing/fail fallback to INIT
         if (window.supabase) {
             try {
@@ -24,8 +26,6 @@ const API = {
 
         ControlState.records = INIT.map(r => ({ ...r }));
         this.saveRecords();
-
-        await this.loadFixedCRs();
     },
 
     async loadFixedCRs() {

@@ -61,7 +61,7 @@ const Dashboard = {
         const { cr, stage, mes, q } = ControlState.filters;
         const lowerQ = (q || '').toLowerCase();
         return (ControlState.records || []).filter(r => {
-            const matchCR = !cr || cr === 'all' || r.cr === String(cr);
+            const matchCR = !cr || cr === 'all' || r.cr === String(cr) || (cr === 'Sem CR' && (!r.cr || r.cr.trim() === ''));
             const matchStage = !stage || stage === 'all' || r.stage === String(stage);
             const matchMes = !mes || mes === 'all' || r.mes === String(mes);
             const matchQ = !lowerQ ||

@@ -111,6 +111,15 @@ window.App = {
         }
     },
 
+    popCRs() {
+        const datalist = document.getElementById('cr-autofill-list');
+        if (datalist) {
+            const recordCRs = (ControlState.records || []).map(r => r.cr ? r.cr.trim() : '');
+            const crs = [...new Set([...recordCRs, ...(window.ControlState.fixedCRs || [])])].filter(c => c !== '' && c !== 'Sem CR').sort();
+            datalist.innerHTML = crs.map(c => `<option value="${c}"></option>`).join('');
+        }
+    },
+
     openNew() {
         document.getElementById('mtitle').textContent = 'Novo Boletim de Medição';
         document.getElementById('eid').value = '';
@@ -119,6 +128,7 @@ window.App = {
             if (el) el.value = '';
         });
         this.popStages();
+        this.popCRs();
         document.getElementById('f-stage').value = 'enviado';
         document.getElementById('modal-overlay').classList.remove('hidden');
     },
@@ -158,6 +168,7 @@ window.App = {
         });
 
         this.popStages();
+        this.popCRs();
         document.getElementById('f-stage').value = r.stage;
         document.getElementById('modal-overlay').classList.remove('hidden');
     },

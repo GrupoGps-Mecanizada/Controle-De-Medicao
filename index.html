@@ -208,8 +208,10 @@
           <input type="hidden" id="eid" />
           <div class="fgrid" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
             <div class="ff" style="display:flex;flex-direction:column;gap:4px;"><label
-                style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-3);">CR</label><input
-                class="finput" id="f-cr" placeholder="Ex: 18512" /></div>
+                style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-3);">CR</label>
+              <input class="finput" id="f-cr" placeholder="Ex: 18512" list="cr-autofill-list" />
+              <datalist id="cr-autofill-list"></datalist>
+            </div>
             <div class="ff" style="display:flex;flex-direction:column;gap:4px;"><label
                 style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-3);">Mês</label><input
                 class="finput" type="month" id="f-mes" /></div>

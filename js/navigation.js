@@ -16,6 +16,11 @@ const Navigation = {
             btn.addEventListener('click', (e) => {
                 const view = e.currentTarget.dataset.view;
                 if (view) {
+                    if (view === 'dashboard') {
+                        ControlState.filters.cr = 'all';
+                        const fCR = document.getElementById('filterCR');
+                        if (fCR) fCR.value = 'all';
+                    }
                     this.setView(view);
                     overlay.classList.add('hidden');
                 }
@@ -50,6 +55,9 @@ const Navigation = {
         const logoBase = document.getElementById('logo-home');
         if (logoBase) {
             logoBase.addEventListener('click', () => {
+                ControlState.filters.cr = 'all';
+                const fCR = document.getElementById('filterCR');
+                if (fCR) fCR.value = 'all';
                 this.setView('dashboard');
             });
         }
