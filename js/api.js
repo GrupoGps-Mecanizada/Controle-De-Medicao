@@ -6,7 +6,7 @@ const API = {
         // For now try Supabase, if missing/fail fallback to INIT
         if (window.supabase) {
             try {
-                const { data, error } = await supabase.from('boletins_medicao').select('*');
+                const { data, error } = await supabase.schema('gps_mec').from('adm_gps_mec_boletins_medicao').select('*');
                 if (error) throw error;
                 if (data && data.length > 0) {
                     ControlState.records = data.map(r => {
@@ -42,8 +42,8 @@ const API = {
     async loadFixedCRs() {
         if (window.supabase) {
             try {
-                // Fetch from the new 'crs' table
-                const { data, error } = await supabase.from('crs').select('*').order('cr_id', { ascending: true });
+                // Fetch from the new 'gps_centros_resultado' table
+                const { data, error } = await supabase.schema('gps_compartilhado').from('gps_centros_resultado').select('*').order('cr_id', { ascending: true });
                 if (!error && data) {
                     ControlState.fixedCRsObjects = data; // Keep full payload
                     ControlState.fixedCRs = data.map(c => c.cr_id); // Compatibility with old string array code
@@ -75,9 +75,9 @@ const API = {
     async loadMotivosGlosa() {
         if (window.supabase) {
             try {
-                const { data, error } = await supabase.from('app_config').select('value').eq('key', 'motivos_glosa').single();
-                if (!error && data && data.value) {
-                    ControlState.motivosGlosa = data.value;
+                const { data, error } = await supabase.schema('gps_compartilhado').from('gps_configuracoes_sistema').select('valor').eq('sistema', 'MEDICAO').eq('setor', 'MEC').eq('chave', 'motivos_glosa').single();
+                if (!error && data && data.valor) {
+                    ControlState.motivosGlosa = data.valor;
                     return;
                 }
             } catch (e) {
@@ -97,7 +97,8 @@ const API = {
     async saveMotivosGlosa() {
         if (window.supabase) {
             try {
-                const { error } = await supabase.from('app_config').upsert({ key: 'motivos_glosa', value: ControlState.motivosGlosa, updated_at: new Date().toISOString() });
+                // The upsert needs all the unique keys
+                const { error } = await supabase.schema('gps_compartilhado').from('gps_configuracoes_sistema').upsert({ sistema: 'MEDICAO', setor: 'MEC', chave: 'motivos_glosa', valor: ControlState.motivosGlosa, updated_at: new Date().toISOString() });
                 if (error) throw error;
             } catch (e) {
                 console.error('Supabase save motivos_glosa error', e);
@@ -129,7 +130,7 @@ const API = {
             try {
                 const dbRow = this.mapToDB(newRecord);
                 delete dbRow.id;
-                const { data: inserted, error } = await supabase.from('boletins_medicao').insert([dbRow]).select();
+                const { data: inserted, error } = await supabase.schema('gps_mec').from('adm_gps_mec_boletins_medicao').insert([dbRow]).select();
                 if (!error && inserted && inserted[0]) {
                     newRecord.id = inserted[0].id;
                 }
@@ -142,7 +143,7 @@ const API = {
     async updateRecord(id, data) {
         if (window.supabase) {
             try {
-                await supabase.from('boletins_medicao').update(this.mapToDB(data)).eq('id', id);
+                await supabase.schema('gps_mec').from('adm_gps_mec_boletins_medicao').update(this.mapToDB(data)).eq('id', id);
             } catch (e) { console.error('Supabase DB error', e); }
         }
         const idx = ControlState.records.findIndex(r => String(r.id) === String(id));
@@ -155,7 +156,7 @@ const API = {
     async deleteRecord(id) {
         if (window.supabase) {
             try {
-                await supabase.from('boletins_medicao').delete().eq('id', id);
+                await supabase.schema('gps_mec').from('adm_gps_mec_boletins_medicao').delete().eq('id', id);
             } catch (e) { console.error('Supabase DB error', e); }
         }
         ControlState.records = ControlState.records.filter(r => String(r.id) !== String(id));
@@ -166,7 +167,7 @@ const API = {
     async addCR(crData) {
         if (window.supabase) {
             try {
-                const { error } = await supabase.from('crs').insert([crData]);
+                const { error } = await supabase.schema('gps_compartilhado').from('gps_centros_resultado').insert([crData]);
                 if (error) throw error;
             } catch (e) { console.error('Supabase DB error adding CR', e); throw e; }
         }
@@ -180,7 +181,7 @@ const API = {
     async updateCR(cr_id, crData) {
         if (window.supabase) {
             try {
-                const { error } = await supabase.from('crs').update(crData).eq('cr_id', cr_id);
+                const { error } = await supabase.schema('gps_compartilhado').from('gps_centros_resultado').update(crData).eq('cr_id', cr_id);
                 if (error) throw error;
             } catch (e) { console.error('Supabase DB error updating CR', e); throw e; }
         }
@@ -195,7 +196,7 @@ const API = {
     async deleteCR(cr_id) {
         if (window.supabase) {
             try {
-                const { error } = await supabase.from('crs').delete().eq('cr_id', cr_id);
+                const { error } = await supabase.schema('gps_compartilhado').from('gps_centros_resultado').delete().eq('cr_id', cr_id);
                 if (error) throw error;
             } catch (e) { console.error('Supabase DB error deleting CR', e); throw e; }
         }
