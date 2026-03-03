@@ -136,15 +136,49 @@ const TableView = {
     });
   },
 
+  getFilteredForCol(targetColId) {
+    const { cr, stage, mes, q, cols } = ControlState.filters;
+    const lowerQ = (q || '').toLowerCase();
+
+    return (ControlState.records || []).filter(r => {
+      // Global top-bar filters
+      const matchCR = !cr || cr === 'all' || r.cr === String(cr);
+      const matchStage = !stage || stage === 'all' || r.stage === String(stage);
+      const matchMes = !mes || mes === 'all' || r.mes === String(mes);
+      const matchQ = !lowerQ ||
+        (r.descricao && r.descricao.toLowerCase().includes(lowerQ)) ||
+        (r.pedido && r.pedido.includes(lowerQ)) ||
+        (r.cr && r.cr.includes(lowerQ)) ||
+        (r.mes && r.mes.toLowerCase().includes(lowerQ)) ||
+        (r.folhaRegistro && r.folhaRegistro.includes(lowerQ));
+
+      if (!(matchCR && matchStage && matchMes && matchQ)) return false;
+
+      // Custom Excel-like column filters (EXCEPT targetColId)
+      if (cols) {
+        for (const colId in cols) {
+          if (colId === targetColId) continue;
+          const selectedValues = cols[colId];
+          if (selectedValues && selectedValues.length > 0) {
+            const val = String(r[colId] || '');
+            if (!selectedValues.includes(val)) return false;
+          }
+        }
+      }
+
+      return true;
+    });
+  },
+
   openColFilter(e, colId) {
     e.stopPropagation();
 
     const existing = document.getElementById('cf-menu');
     if (existing) existing.remove();
 
-    // Get distinct values for this column based on ALL records (or apply other filters to be more accurate)
-    const allRecs = ControlState.records || [];
-    const distinct = [...new Set(allRecs.map(r => String(r[colId] || '')))].sort();
+    // Get distinct values for this column based on records ALREADY filtered by OTHER filters
+    const baseRecs = this.getFilteredForCol(colId);
+    const distinct = [...new Set(baseRecs.map(r => String(r[colId] || '')))].sort();
 
     const selected = (ControlState.filters.cols && ControlState.filters.cols[colId]) || [];
 
@@ -171,7 +205,7 @@ const TableView = {
       <input type="text" id="${searchId}" class="cf-search" placeholder="Buscar..." />
       <div class="cf-list" id="${listId}">
         ${distinct.map((v) => {
-      const chk = (selected.length === 0 || selected.includes(v)) ? 'checked' : '';
+      const chk = selected.includes(v) ? 'checked' : '';
       const label = v === '' ? '(Vazio)' : (colId === 'stage' ? stageObj(v).label : v);
       return '<label class="cf-item" title="' + label.replace(/"/g, '&quot;') + '">' +
         '<input type="checkbox" value="' + v.replace(/"/g, '&quot;') + '" ' + chk + ' />' +
@@ -223,8 +257,8 @@ const TableView = {
 
     if (!ControlState.filters.cols) ControlState.filters.cols = {};
 
-    if (vals.length === totalCheckboxes) {
-      // All selected = no filter
+    if (vals.length === totalCheckboxes || vals.length === 0) {
+      // All selected or None selected = no filter
       ControlState.filters.cols[colId] = [];
     } else {
       ControlState.filters.cols[colId] = vals;
