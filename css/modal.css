@@ -66,6 +66,12 @@
     overflow-y: auto;
 }
 
+.fgrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
 .modal-footer {
     padding: 12px 20px;
     border-top: 1px solid var(--border);
@@ -106,6 +112,10 @@
     #modal-overlay,
     .modal-overlay {
         padding: 12px;
+    }
+
+    .fgrid {
+        grid-template-columns: 1fr;
     }
 }
 
