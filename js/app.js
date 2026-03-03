@@ -16,6 +16,7 @@ window.App = {
 
         // 5. Initial Render
         this.renderCurrentView();
+        if (typeof CrsView !== 'undefined') CrsView.render();
 
         // Hide loader
         const loader = document.getElementById('loading-screen');
@@ -48,7 +49,6 @@ window.App = {
 
         const closeAllModals = () => {
             if (overlay) overlay.classList.add('hidden');
-            if (crOverlay) crOverlay.classList.add('hidden');
             if (motivosOverlay) motivosOverlay.classList.add('hidden');
         };
 
@@ -57,78 +57,15 @@ window.App = {
                 if (e.target === overlay) this.closeModal();
             });
         }
-        if (crOverlay) {
-            crOverlay.addEventListener('click', (e) => {
-                if (e.target === crOverlay) this.closeCRModal();
-            });
-        }
         if (motivosOverlay) {
             motivosOverlay.addEventListener('click', (e) => {
                 if (e.target === motivosOverlay) this.closeMotivosModal();
             });
         }
 
-        document.querySelectorAll('.close-cr-modal').forEach(btn => {
-            btn.addEventListener('click', () => this.closeCRModal());
-        });
-
         document.querySelectorAll('.close-motivos-modal').forEach(btn => {
             btn.addEventListener('click', () => this.closeMotivosModal());
         });
-
-        const btnManageMotivos = document.getElementById('btn-manage-motivos');
-        if (btnManageMotivos) {
-            btnManageMotivos.addEventListener('click', (e) => {
-                e.preventDefault();
-                this.openMotivosModal();
-            });
-        }
-
-        const btnManageCRs = document.getElementById('btn-manage-crs');
-        if (btnManageCRs) btnManageCRs.addEventListener('click', () => {
-            const navOverlay = document.getElementById('nav-menu-overlay');
-            if (navOverlay) navOverlay.classList.add('hidden');
-            this.openCRModal();
-        });
-
-        const addCrBtn = document.getElementById('add-cr-btn');
-        if (addCrBtn) {
-            addCrBtn.addEventListener('click', async () => {
-                const idInput = document.getElementById('new-cr-id');
-                const contratoInput = document.getElementById('new-cr-contrato');
-                const clienteInput = document.getElementById('new-cr-cliente');
-                const responsavelInput = document.getElementById('new-cr-responsavel');
-
-                const cr_id = idInput.value.trim();
-                const nome_contrato = contratoInput.value.trim();
-                const cliente = clienteInput.value.trim();
-                const responsavel = responsavelInput.value.trim();
-
-                if (cr_id) {
-                    if (!ControlState.fixedCRs.includes(cr_id)) {
-                        const newCR = {
-                            cr_id, nome_contrato, cliente, responsavel
-                        };
-                        try {
-                            await API.addCR(newCR);
-                            this.renderCRList();
-                            this.renderCurrentView(); // Refresh dashboard
-                            if (window.showToast) showToast('CR Adicionado com sucesso!');
-                        } catch (e) {
-                            if (window.showToast) showToast('Erro ao adicionar CR.', 'error');
-                        }
-                    } else {
-                        if (window.showToast) showToast('Este CR já está na lista.', 'warning');
-                    }
-                    idInput.value = '';
-                    contratoInput.value = '';
-                    clienteInput.value = '';
-                    responsavelInput.value = '';
-                } else {
-                    if (window.showToast) showToast('O ID do CR é obrigatório.', 'warning');
-                }
-            });
-        }
 
         const saveBtn = document.getElementById('save-bm-btn');
         if (saveBtn) saveBtn.addEventListener('click', () => this.saveRecord());
@@ -302,58 +239,13 @@ window.App = {
         document.getElementById('modal-overlay').classList.add('hidden');
     },
 
-    openCRModal() {
-        this.renderCRList();
-        document.getElementById('cr-modal-overlay').classList.remove('hidden');
-    },
+},
 
-    closeCRModal() {
-        document.getElementById('cr-modal-overlay').classList.add('hidden');
-    },
-
-    renderCRList() {
-        const listContainer = document.getElementById('cr-list');
-        if (!listContainer) return;
-
-        if (!ControlState.fixedCRsObjects || ControlState.fixedCRsObjects.length === 0) {
-            listContainer.innerHTML = `<div style="padding:10px;text-align:center;color:var(--text-3);font-size:12px;background:var(--bg-1);border-radius:6px;">Nenhum CR fixo cadastrado.</div>`;
-            return;
-        }
-
-        listContainer.innerHTML = ControlState.fixedCRsObjects.sort((a, b) => a.cr_id.localeCompare(b.cr_id)).map(obj => `
-            <div style="display:flex; flex-direction:column; padding:10px 12px; background:var(--bg-1); border:1px solid var(--border); border-radius:6px;">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <span style="font-weight:600; color:var(--text-1); font-size:14px;">${obj.cr_id} ${obj.nome_contrato ? `- ${obj.nome_contrato}` : ''}</span>
-                    <button onclick="App.removeFixedCR('${obj.cr_id}')" style="background:none;border:none;color:var(--danger);cursor:pointer;" title="Remover CR">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6"/></svg>
-                    </button>
-                </div>
-                <div style="font-size:12px; color:var(--text-2); margin-top:4px;">
-                    ${obj.cliente ? `<b>Cliente:</b> ${obj.cliente} <br>` : ''}
-                    ${obj.responsavel ? `<b>Resp:</b> ${obj.responsavel}` : ''}
-                </div>
-            </div>
-        `).join('');
-    },
-
-    async removeFixedCR(cr) {
-        if (!confirm(`Deseja remover o CR ${cr} da lista fixa?`)) return;
-        try {
-            await API.deleteCR(cr);
-            this.renderCRList();
-            this.renderCurrentView(); // Refresh dashboard
-            if (window.showToast) showToast(`CR ${cr} removido da lista.`);
-        } catch (e) {
-            if (window.showToast) showToast('Erro ao remover CR.', 'error');
-        }
-    }
-};
-
-document.addEventListener('DOMContentLoaded', () => {
-    // Let auth check logic decide when to call App.init()
-    // Wait simply calling it for now, because auth might control this.
-    // Assuming auth.js initializes on window.initApp()
-});
+    document.addEventListener('DOMContentLoaded', () => {
+        // Let auth check logic decide when to call App.init()
+        // Wait simply calling it for now, because auth might control this.
+        // Assuming auth.js initializes on window.initApp()
+    });
 
 // Since we copied auth.js from Gestao Efetivo, it hooks to window.initApp()
 window.initApp = function () {

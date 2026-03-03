@@ -5,9 +5,9 @@ window.ControlState = {
     motivosGlosa: ["Quebra de equipamento", "Falta de efetivo", "Atestado", "Férias", "Posto vago"],
     currentView: 'dashboard',
     filters: {
-        cr: 'all',
-        stage: 'all',
-        mes: 'all',
+        crs: [],
+        stages: [],
+        meses: [],
         q: '',
         cols: {} // { 'cr': ['18512'], 'stage': ['faturado'] }
     }

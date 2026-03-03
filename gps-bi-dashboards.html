@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>GPS · BI Dashboards</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--b0:#f5f7fa;--b1:#fff;--b2:#f0f2f5;--b3:#e8ebf0;--br:#d8dce5;--brb:#c5cbda;--blue:#2563eb;--ac:#4a7fd7;--acg:rgba(74,127,215,.08);--t1:#2d3748;--t2:#5a6676;--t3:#8a95a5;--ok:#22c55e;--wn:#f59e0b;--dn:#ef4444;--tl:#14b8a6;--pu:#8b5ec9;--sh:0 2px 12px rgba(0,0,0,.06);--shl:0 6px 28px rgba(0,0,0,.1)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{height:100%;overflow:hidden}
+body{height:100%;font-family:'Inter',sans-serif;background:var(--b0);color:var(--t1);font-size:13px;display:flex;flex-direction:column;overflow:hidden}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--brb);border-radius:10px}
+/* TOPBAR */
+#topbar{display:flex;align-items:center;padding:0 20px;border-bottom:1px solid var(--br);background:var(--b1);flex-shrink:0;height:48px;gap:12px;position:relative;z-index:10}
+.lw{display:flex;flex-direction:column;line-height:1;gap:2px}
+.lg1{font-weight:800;font-size:14px;color:#0f3868;letter-spacing:.2px}
+.lg2{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.15em;color:var(--blue)}
+.live{display:flex;align-items:center;gap:5px;font-size:10px;font-weight:600;color:var(--ok);margin-left:auto;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:20px;padding:3px 10px}
+.ldot{width:6px;height:6px;background:var(--ok);border-radius:50%;animation:pulse 1.8s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.tinfo{font-size:11px;color:var(--t3);font-weight:500}
+/* TAB NAV */
+#tab-nav{display:flex;padding:10px 20px 0;border-bottom:1px solid var(--br);background:var(--b1);flex-shrink:0;gap:2px;overflow-x:auto}
+.tb{padding:8px 14px;border:none;background:transparent;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;color:var(--t3);cursor:pointer;border-radius:8px 8px 0 0;border-bottom:3px solid transparent;transition:all .15s;display:flex;align-items:center;gap:6px;white-space:nowrap}
+.tb:hover{color:var(--t2);background:var(--b2)}.tb.on{color:var(--blue);border-bottom-color:var(--blue);background:var(--acg)}
+.tb svg{width:13px;height:13px;flex-shrink:0}
+/* MAIN */
+#main{flex:1;overflow-y:auto;padding:18px 20px}
+.panel{display:none}.panel.on{display:block}
+/* GRID */
+.g5{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:14px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.g21{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:14px}
+.g12{display:grid;grid-template-columns:1fr 2fr;gap:12px;margin-bottom:14px}
+/* SECTION */
+.st{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--t3);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--br);display:flex;align-items:center;justify-content:space-between}
+.stb{font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px;background:var(--b2);border:1px solid var(--br);color:var(--t2);font-family:'IBM Plex Mono',monospace}
+/* KPI */
+.kpi{background:var(--b1);border:1px solid var(--br);border-radius:10px;padding:14px 16px 12px;position:relative;overflow:hidden;box-shadow:var(--sh)}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.kb::before{background:var(--blue)}.kg::before{background:var(--ok)}.kw::before{background:var(--wn)}.kr::before{background:var(--dn)}.kt::before{background:var(--tl)}.kp::before{background:var(--pu)}
+.kl{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--t3);margin-bottom:6px}
+.kv{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:20px;color:var(--t1);line-height:1;margin-bottom:5px;letter-spacing:-.03em}
+.kv.sm{font-size:15px}.kv.lg{font-size:24px}
+.kf{font-size:10.5px;color:var(--t3)}
+/* PIPELINE */
+.pipeline{display:flex;margin-bottom:14px;box-shadow:var(--sh)}
+.ps{flex:1;padding:12px 10px 10px;background:var(--b1);border:1px solid var(--br);border-right:none;position:relative}
+.ps:first-child{border-radius:8px 0 0 8px}.ps:last-child{border-right:1px solid var(--br);border-radius:0 8px 8px 0}
+.ps::after{content:'›';position:absolute;right:-8px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--brb);z-index:1}
+.ps:last-child::after{display:none}
+.psn{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:600;line-height:1;margin-bottom:4px}
+.psbar{height:3px;background:var(--br);border-radius:2px;margin-bottom:5px;overflow:hidden}
+.psfill{height:100%;border-radius:2px}
+.psl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--t3)}
+.psv{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--t2);margin-top:2px}
+/* CARD */
+.card{background:var(--b1);border:1px solid var(--br);border-radius:10px;overflow:hidden;box-shadow:var(--sh);display:flex;flex-direction:column}
+.ch{padding:11px 16px;border-bottom:1px solid var(--br);background:var(--b2);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;gap:8px}
+.ct{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--t2)}
+.cb{padding:16px;flex:1}
+/* CR CARDS */
+.cr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.crc{background:var(--b1);border:1px solid var(--br);border-radius:8px;padding:14px 16px;cursor:pointer;box-shadow:var(--sh);transition:border-color .1s,box-shadow .1s,transform .1s}
+.crc:hover{border-color:var(--blue);box-shadow:0 3px 12px rgba(37,99,235,.1);transform:translateY(-1px)}
+.crch{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.crcn{font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600}
+.crcc{font-size:10px;font-weight:600;color:var(--t3);background:var(--b2);border:1px solid var(--br);border-radius:4px;padding:2px 7px;font-family:'IBM Plex Mono',monospace}
+.crcv{font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:600;margin-bottom:2px}
+.crcg{font-size:10.5px;font-weight:600;color:var(--dn);margin-bottom:8px;font-family:'IBM Plex Mono',monospace}
+.crcng{height:16px;margin-bottom:8px}
+.ph{display:flex;justify-content:space-between;font-size:9.5px;font-weight:600;color:var(--t3);margin-bottom:3px}
+.pp{color:var(--ok);font-family:'IBM Plex Mono',monospace}
+.pb{height:3px;background:var(--br);border-radius:2px;overflow:hidden;margin-bottom:8px}
+.pf{height:100%;background:linear-gradient(90deg,var(--blue),#22d3ee);border-radius:2px}
+.spills{display:flex;flex-wrap:wrap;gap:3px}
+.spill{font-size:9.5px;font-weight:600;border-radius:20px;padding:2px 7px}
+/* TABLE */
+.dt{width:100%;border-collapse:collapse;font-size:12px}
+.dt th{padding:8px 12px;text-align:left;background:var(--b2);font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--t3);border-bottom:1px solid var(--br);white-space:nowrap}
+.dt td{padding:9px 12px;border-bottom:1px solid var(--br);vertical-align:middle}
+.dt tbody tr:last-child td{border-bottom:none}
+.dt tbody tr:hover{background:var(--b2)}
+.r{text-align:right}.mono{font-family:'IBM Plex Mono',monospace}
+.tfoot{padding:10px 16px;background:var(--b2);border-top:1px solid var(--br);display:flex;gap:16px;flex-wrap:wrap}
+.tfl{font-size:11px;color:var(--t3);display:flex;align-items:center;gap:4px}
+.tfl strong{font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--t2);font-size:12px}
+/* SLA */
+.sbadge{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;border-radius:4px;padding:2px 7px}
+.s-ok{background:rgba(34,197,94,.1);color:var(--ok)}.s-wn{background:rgba(245,158,11,.1);color:var(--wn)}.s-dn{background:rgba(239,68,68,.1);color:var(--dn)}.s-nt{background:var(--b2);color:var(--t3)}
+/* HEATMAP */
+.hm{width:100%;border-collapse:collapse}
+.hm th,.hm td{padding:8px 10px;border:1px solid var(--br);font-size:11px;text-align:center}
+.hm th{background:var(--b2);font-weight:700;font-size:9.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--t3)}
+.hm td:first-child{text-align:left;font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:12px;background:var(--b2)}
+.hmcell{border-radius:4px;padding:3px 8px;font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:11px;display:inline-block}
+/* RBAR */
+.rbar{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--br)}
+.rbar:last-child{border-bottom:none}
+.rbl{width:110px;flex-shrink:0;font-size:11px;font-weight:600;color:var(--t1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rbt{flex:1;height:18px;background:var(--b2);border-radius:4px;overflow:hidden}
+.rbf{height:100%;border-radius:4px;display:flex;align-items:center;padding:0 7px;min-width:4px;transition:width .4s}
+.rbf span{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;color:#fff;white-space:nowrap}
+.rbv{width:110px;text-align:right;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--t2);flex-shrink:0}
+/* CBAR */
+.cbar{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.cbl{width:130px;flex-shrink:0;font-size:11px;color:var(--t2);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cbt{flex:1;height:10px;background:var(--b3);border-radius:5px;overflow:hidden}
+.cbf{height:100%;border-radius:5px;transition:width .5s}
+.cbp{width:38px;text-align:right;font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:600}
+/* ALERT */
+.aitem{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;background:var(--b2);border:1px solid var(--br);border-radius:7px;margin-bottom:8px}
+.adot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.at{font-size:12px;font-weight:700;color:var(--t1)}.as{font-size:11px;color:var(--t3);margin-top:2px}
+/* WATERFALL */
+.wfi{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--br)}
+.wfi:last-child{border-bottom:none}
+.wfl{width:140px;flex-shrink:0;font-size:11.5px;color:var(--t2);font-weight:500}
+.wft{flex:1;height:28px;background:var(--b2);border-radius:4px;overflow:hidden}
+.wff{height:100%;border-radius:4px;display:flex;align-items:center;padding:0 10px;transition:width .4s}
+.wff span{font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wfv{width:130px;text-align:right;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:var(--t1);flex-shrink:0}
+/* CR TABS */
+.cr-tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.crtab{padding:5px 12px;border:1px solid var(--br);border-radius:6px;background:var(--b1);font-size:11px;font-weight:600;color:var(--t2);cursor:pointer;font-family:'IBM Plex Mono',monospace;transition:all .12s}
+.crtab:hover{border-color:var(--blue);color:var(--blue)}.crtab.on{border-color:var(--blue);background:var(--acg);color:var(--blue)}
+/* BADGE */
+.badge{display:inline-flex;align-items:center;border-radius:20px;padding:2px 8px;font-size:10px;font-weight:700;white-space:nowrap}
+/* CW */
+.cw{position:relative;width:100%}
+/* RESPONSIVE */
+@media(max-width:900px){.g5,.g4{grid-template-columns:repeat(2,1fr)}.g21,.g12,.g2{grid-template-columns:1fr}}
+@media(max-width:600px){.g3{grid-template-columns:1fr}.g5,.g4{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div id="topbar">
+  <div class="lw"><div class="lg1">Grupo GPS</div><div class="lg2">Administração · Controle de Medição</div></div>
+  <span class="tinfo">Proposta BI — Dashboards &amp; KPIs</span>
+  <div class="live"><span class="ldot"></span>Dados ao vivo</div>
+</div>
+<div id="tab-nav">
+  <button class="tb on" onclick="sw(this,'p1')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Visão Executiva</button>
+  <button class="tb" onclick="sw(this,'p2')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="12" r="9"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 7v5l3 3"/></svg>SLA &amp; Workflow</button>
+  <button class="tb" onclick="sw(this,'p3')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Financeiro por CR</button>
+  <button class="tb" onclick="sw(this,'p4')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>Qualidade &amp; Responsáveis</button>
+</div>
+<div id="main">
+  <div id="p1" class="panel on"></div>
+  <div id="p2" class="panel"></div>
+  <div id="p3" class="panel"></div>
+  <div id="p4" class="panel"></div>
+</div>
+
+<script>
+/* ── DATA ─────────────────────────────────────────────────────── */
+const STAGES=[
+  {id:"enviado",label:"Enviado",short:"Enviado",color:"#2563eb",bg:"rgba(37,99,235,.1)",sla:5},
+  {id:"aguardando_aprovacao",label:"Ag. Aprovação",short:"Ag.Aprov.",color:"#f59e0b",bg:"rgba(245,158,11,.1)",sla:10},
+  {id:"aprovado",label:"Aprovado",short:"Aprovado",color:"#22c55e",bg:"rgba(34,197,94,.1)",sla:5},
+  {id:"faturado",label:"Faturado",short:"Faturado",color:"#14b8a6",bg:"rgba(20,184,166,.1)",sla:null},
+];
+const D=[
+  {id:"1",cr:"18512",mes:"Fev/26",medir:170047.31,valorBM:0,valorGlosa:0,dataAprovacao:"27.02.2026",dataEnvio:"",responsavel:"",motivoGlosa:"",stage:"aprovado"},
+  {id:"2",cr:"18512",mes:"Fev/26",medir:13566.52,valorBM:0,valorGlosa:0,dataAprovacao:"27.02.2026",dataEnvio:"",responsavel:"",motivoGlosa:"",stage:"aprovado"},
+  {id:"3",cr:"18512",mes:"Fev/26",medir:20834.58,valorBM:0,valorGlosa:0,dataAprovacao:"27.02.2026",dataEnvio:"",responsavel:"",motivoGlosa:"",stage:"aprovado"},
+  {id:"4",cr:"18512",mes:"Fev/26",medir:82249.52,valorBM:0,valorGlosa:0,dataAprovacao:"27.02.2026",dataEnvio:"",responsavel:"",motivoGlosa:"",stage:"aprovado"},
+  {id:"5",cr:"18512",mes:"Fev/26",medir:6664.03,valorBM:0,valorGlosa:0,dataAprovacao:"27.02.2026",dataEnvio:"",responsavel:"",motivoGlosa:"",stage:"aprovado"},
+  {id:"6",cr:"18512",mes:"Fev/26",medir:19641.60,valorBM:0,valorGlosa:0,dataAprovacao:"27.02.2026",dataEnvio:"",responsavel:"",motivoGlosa:"",stage:"aprovado"},
+  {id:"7",cr:"18512",mes:"Fev/26",medir:343276.81,valorBM:0,valorGlosa:0,dataAprovacao:"27.02.2026",dataEnvio:"",responsavel:"",motivoGlosa:"",stage:"aprovado"},
+  {id:"8",cr:"18512",mes:"Fev/26",medir:47108.63,valorBM:0,valorGlosa:0,dataAprovacao:"27.02.2026",dataEnvio:"",responsavel:"",motivoGlosa:"",stage:"aprovado"},
+  {id:"9",cr:"18515",mes:"Fev/26",medir:280760.61,valorBM:0,valorGlosa:0,dataAprovacao:"28.02.2026",dataEnvio:"",responsavel:"",motivoGlosa:"",stage:"aprovado"},
+  {id:"10",cr:"18515",mes:"Fev/26",medir:470869.92,valorBM:0,valorGlosa:0,dataAprovacao:"28.02.2026",dataEnvio:"",responsavel:"",motivoGlosa:"",stage:"aprovado"},
+  {id:"11",cr:"18515",mes:"Fev/26",medir:257764.42,valorBM:0,valorGlosa:0,dataAprovacao:"28.02.2026",dataEnvio:"",responsavel:"",motivoGlosa:"",stage:"aprovado"},
+  {id:"12",cr:"23949",mes:"Jan/26",medir:252433.71,valorBM:252433.71,valorGlosa:0,dataAprovacao:"28.02.2026",dataEnvio:"05.03.2026",responsavel:"",motivoGlosa:"",stage:"faturado"},
+  {id:"13",cr:"23949",mes:"Fev/26",medir:95710.44,valorBM:0,valorGlosa:0,dataAprovacao:"27.02.2026",dataEnvio:"",responsavel:"",motivoGlosa:"",stage:"aprovado"},
+  {id:"14",cr:"23949",mes:"Jan/26",medir:17944.66,valorBM:17944.66,valorGlosa:0,dataAprovacao:"24.02.2026",dataEnvio:"28.02.2026",responsavel:"",motivoGlosa:"",stage:"faturado"},
+  {id:"15",cr:"23949",mes:"Jan/26",medir:301636.21,valorBM:301636.21,valorGlosa:0,dataAprovacao:"24.02.2026",dataEnvio:"28.02.2026",responsavel:"",motivoGlosa:"",stage:"faturado"},
+  {id:"16",cr:"23949",mes:"Jan/26",medir:95217.32,valorBM:95217.32,valorGlosa:1200.50,dataAprovacao:"24.02.2026",dataEnvio:"28.02.2026",responsavel:"",motivoGlosa:"Atraso na entrega",stage:"faturado"},
+  {id:"17",cr:"18521",mes:"Fev/26",medir:2225.59,valorBM:0,valorGlosa:0,dataAprovacao:"27.02.2026",dataEnvio:"",responsavel:"",motivoGlosa:"",stage:"aguardando_aprovacao"},
+  {id:"18",cr:"18521",mes:"Fev/26",medir:25481.78,valorBM:0,valorGlosa:0,dataAprovacao:"27.02.2026",dataEnvio:"",responsavel:"",motivoGlosa:"",stage:"aguardando_aprovacao"},
+  {id:"19",cr:"18521",mes:"Fev/26",medir:66887.69,valorBM:0,valorGlosa:0,dataAprovacao:"27.02.2026",dataEnvio:"",responsavel:"",motivoGlosa:"",stage:"enviado"},
+  {id:"20",cr:"18521",mes:"Fev/26",medir:29015.74,valorBM:0,valorGlosa:0,dataAprovacao:"27.02.2026",dataEnvio:"",responsavel:"",motivoGlosa:"",stage:"enviado"},
+  {id:"21",cr:"18521",mes:"Fev/26",medir:6073.24,valorBM:0,valorGlosa:0,dataAprovacao:"27.02.2026",dataEnvio:"",responsavel:"",motivoGlosa:"",stage:"enviado"},
+  {id:"22",cr:"18521",mes:"Fev/26",medir:27159.68,valorBM:0,valorGlosa:0,dataAprovacao:"27.02.2026",dataEnvio:"",motivoGlosa:"",responsavel:"",stage:"enviado"},
+  {id:"23",cr:"18521",mes:"Fev/26",medir:14259.52,valorBM:0,valorGlosa:0,dataAprovacao:"27.02.2026",dataEnvio:"",responsavel:"",motivoGlosa:"",stage:"aprovado"},
+  {id:"24",cr:"18521",mes:"Fev/26",medir:60240.77,valorBM:0,valorGlosa:0,dataAprovacao:"27.02.2026",dataEnvio:"",responsavel:"",motivoGlosa:"",stage:"aprovado"},
+  {id:"25",cr:"18521",mes:"Fev/26",medir:32120.45,valorBM:0,valorGlosa:0,dataAprovacao:"27.02.2026",dataEnvio:"",responsavel:"",motivoGlosa:"",stage:"aprovado"},
+  {id:"26",cr:"18521",mes:"Fev/26",medir:20910.27,valorBM:20910.27,valorGlosa:0,dataAprovacao:"26.02.2026",dataEnvio:"28.02.2026",responsavel:"",motivoGlosa:"",stage:"faturado"},
+  {id:"27",cr:"18521",mes:"Jan/26",medir:43546.94,valorBM:43546.94,valorGlosa:0,dataAprovacao:"26.02.2026",dataEnvio:"28.02.2026",responsavel:"",motivoGlosa:"",stage:"faturado"},
+  {id:"28",cr:"18521",mes:"Fev/26",medir:26708.84,valorBM:26708.84,valorGlosa:0,dataAprovacao:"25.02.2026",dataEnvio:"27.02.2026",responsavel:"",motivoGlosa:"",stage:"faturado"},
+  {id:"29",cr:"18521",mes:"",medir:3685.77,valorBM:3685.77,valorGlosa:0,dataAprovacao:"20.02.2026",dataEnvio:"25.02.2026",responsavel:"",motivoGlosa:"",stage:"faturado"},
+];
+const CRS=["18512","18515","18521","23949"];
+
+/* ── HELPERS ─────────────────────────────────────────────────── */
+const R=v=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(+v||0);
+const N=(v,d=0)=>new Intl.NumberFormat('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d}).format(+v||0);
+const SO=id=>STAGES.find(s=>s.id===id)||STAGES[0];
+function parsePt(s){if(!s)return null;const p=s.split('.');if(p.length!==3)return null;const d=new Date(+p[2],+p[1]-1,+p[0]);return isNaN(d)?null:d;}
+function daysBetween(a,b){return Math.round((b-a)/86400000)}
+const tod=()=>{const d=new Date();d.setHours(0,0,0,0);return d;}
+function slaCalc(r){
+  const s=SO(r.stage);
+  if(r.stage==='faturado')return{status:'ok',days:0,max:null,pct:100,label:'Faturado'};
+  if(!s.sla)return{status:'nt',days:null,max:null,pct:null,label:'—'};
+  const ap=parsePt(r.dataAprovacao);
+  if(!ap)return{status:'nt',days:null,max:null,pct:null,label:'Sem data'};
+  const idx=STAGES.findIndex(x=>x.id===r.stage);
+  let off=0;for(let i=0;i<idx;i++)off+=(STAGES[i].sla||0);
+  const entry=new Date(ap);entry.setDate(entry.getDate()+off);
+  const days=Math.max(0,daysBetween(entry,tod()));
+  const max=s.sla,pct=Math.min(100,Math.round(days/max*100));
+  let status='ok';if(pct>=100)status='dn';else if(pct>=75)status='wn';
+  return{status,days,max,pct,label:days===0?'Hoje':days===1?'1 dia':`${days} dias`};
+}
+
+/* ── COMPUTED ─────────────────────────────────────────────────── */
+const totalMedir=D.reduce((s,r)=>s+(+r.medir||0),0);
+const totalFaturado=D.filter(r=>r.stage==='faturado').reduce((s,r)=>s+(+r.medir||0),0);
+const totalGlosa=D.reduce((s,r)=>s+(+r.valorGlosa||0),0);
+const taxaConv=totalMedir>0?(totalFaturado/totalMedir*100):0;
+const active=D.filter(r=>r.stage!=='faturado');
+const slad=active.map(r=>({...r,sla:slaCalc(r)}));
+const nOK=slad.filter(r=>r.sla.status==='ok').length;
+const nWN=slad.filter(r=>r.sla.status==='wn').length;
+const nDN=slad.filter(r=>r.sla.status==='dn').length;
+const conf=active.length>0?Math.round(nOK/active.length*100):100;
+
+// monthly
+const mth={};
+D.forEach(r=>{if(!r.mes)return;if(!mth[r.mes])mth[r.mes]={medir:0,fat:0,bm:0};mth[r.mes].medir+=(+r.medir||0);if(r.stage==='faturado')mth[r.mes].fat+=(+r.medir||0);mth[r.mes].bm+=(+r.valorBM||0);});
+const meses=Object.keys(mth).sort((a,b)=>{const ms=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];const g=s=>{const p=s.split('/');return(2000+parseInt(p[1]))*100+ms.indexOf(p[0])};return g(a)-g(b);});
+
+// CR data
+const crd={};
+CRS.forEach(cr=>{const rs=D.filter(r=>r.cr===cr);crd[cr]={count:rs.length,medir:rs.reduce((s,r)=>s+(+r.medir||0),0),glosa:rs.reduce((s,r)=>s+(+r.valorGlosa||0),0),bm:rs.reduce((s,r)=>s+(+r.valorBM||0),0),fat:rs.filter(r=>r.stage==='faturado').reduce((s,r)=>s+(+r.medir||0),0),fatCount:rs.filter(r=>r.stage==='faturado').length,stages:{}};STAGES.forEach(s=>{crd[cr].stages[s.id]=rs.filter(r=>r.stage===s.id).length;});});
+
+// Completude (pre-computed from analysis)
+const COMP=[
+  {label:'CR',pct:100},{label:'Mês',pct:97},{label:'Pedido',pct:100},
+  {label:'Folha Reg.',pct:100},{label:'Descrição',pct:100},{label:'Dt. Aprovação',pct:100},
+  {label:'Dt. Envio',pct:Math.round(D.filter(r=>!!r.dataEnvio).length/D.length*100)},
+  {label:'Valor BM',pct:Math.round(D.filter(r=>+r.valorBM>0).length/D.length*100)},
+  {label:'Valor Glosa',pct:Math.round(D.filter(r=>+r.valorGlosa>0).length/D.length*100)},
+  {label:'Responsável',pct:0},{label:'Motivo Glosa',pct:Math.round(D.filter(r=>!!r.motivoGlosa).length/D.length*100)},
+].map(f=>({...f,color:f.pct>=80?'#22c55e':f.pct>=40?'#f59e0b':'#ef4444'}));
+
+/* ── CHART REGISTRY ───────────────────────────────────────────── */
+const charts={};
+function dc(id){if(charts[id]){charts[id].destroy();delete charts[id];}}
+function cc(id,cfg){dc(id);const c=document.getElementById(id);if(!c)return null;charts[id]=new Chart(c,cfg);return charts[id];}
+Chart.defaults.font.family="'Inter',sans-serif";
+Chart.defaults.font.size=11;
+Chart.defaults.plugins.legend.labels.usePointStyle=true;
+Chart.defaults.plugins.legend.labels.padding=12;
+Chart.defaults.plugins.tooltip.padding=10;
+Chart.defaults.plugins.tooltip.cornerRadius=6;
+Chart.defaults.plugins.tooltip.boxPadding=4;
+
+/* ══════════════════════════════════════════════════════════════ */
+/* D1 — VISÃO EXECUTIVA                                          */
+/* ══════════════════════════════════════════════════════════════ */
+function renderD1(){
+  const el=document.getElementById('p1');
+  const pipeline=STAGES.map(s=>{
+    const c=D.filter(r=>r.stage===s.id).length;
+    const p=D.length?Math.round(c/D.length*100):0;
+    const v=D.filter(r=>r.stage===s.id).reduce((a,r)=>a+(+r.medir||0),0);
+    return`<div class="ps"><div class="psn" style="color:${s.color}">${c}</div><div class="psbar"><div class="psfill" style="width:${p}%;background:${s.color}"></div></div><div class="psl">${s.label}</div><div class="psv">${R(v)}</div></div>`;
+  }).join('');
+  const crCards=CRS.map(cr=>{
+    const cd=crd[cr];const pct=cd.count>0?Math.round(cd.fatCount/cd.count*100):0;
+    const pills=STAGES.map(s=>{const c=cd.stages[s.id];if(!c)return'';return`<span class="spill" style="background:${s.bg};color:${s.color}">${c} ${s.short}</span>`;}).join('');
+    return`<div class="crc"><div class="crch"><div class="crcn" style="color:var(--blue)">CR ${cr}</div><span class="crcc">${cd.count} BMs</span></div><div class="crcv">${R(cd.medir)}</div>${cd.glosa>0?`<div class="crcg">Glosa: ${R(cd.glosa)}</div>`:'<div class="crcng"></div>'}<div class="ph"><span>Faturamento</span><span class="pp">${pct}%</span></div><div class="pb"><div class="pf" style="width:${pct}%"></div></div><div class="spills">${pills}</div></div>`;
+  }).join('');
+  const tcol=taxaConv>=80?'var(--ok)':taxaConv>=40?'var(--wn)':'var(--dn)';
+  el.innerHTML=`
+  <div class="g5">
+    <div class="kpi kb"><div class="kl">Volume Total a Medir</div><div class="kv sm">${R(totalMedir)}</div><div class="kf">${D.length} boletins cadastrados</div></div>
+    <div class="kpi kt"><div class="kl">Faturado</div><div class="kv sm">${R(totalFaturado)}</div><div class="kf">${D.filter(r=>r.stage==='faturado').length} BMs concluídos</div></div>
+    <div class="kpi kw"><div class="kl">Em Andamento</div><div class="kv sm">${R(totalMedir-totalFaturado)}</div><div class="kf">${active.length} BMs pendentes</div></div>
+    <div class="kpi kr"><div class="kl">Glosas Registradas</div><div class="kv sm">${R(totalGlosa)}</div><div class="kf">${D.filter(r=>+r.valorGlosa>0).length} BM(s) com glosa</div></div>
+    <div class="kpi kg"><div class="kl">Taxa de Conversão</div><div class="kv lg" style="color:${tcol}">${N(taxaConv,1)}%</div><div class="kf">Faturado / Volume total</div></div>
+  </div>
+  <div class="st"><span>Pipeline de Workflow — Distribuição de BMs por Etapa</span><span class="stb">${D.length} BMs total · ${R(totalMedir)}</span></div>
+  <div class="pipeline">${pipeline}</div>
+  <div class="g2">
+    <div class="card"><div class="ch"><div class="ct">Evolução Mensal — Volume a Medir vs. Faturado</div></div><div class="cb"><div class="cw" style="height:230px"><canvas id="c-monthly"></canvas></div></div></div>
+    <div class="card"><div class="ch"><div class="ct">Volume por Centro de Resultado</div></div><div class="cb"><div class="cw" style="height:230px"><canvas id="c-cr-vol"></canvas></div></div></div>
+  </div>
+  <div class="st"><span>Situação por CR</span><span class="stb">${CRS.length} centros de resultado monitorados</span></div>
+  <div class="cr-grid">${crCards}</div>`;
+
+  cc('c-monthly',{type:'bar',data:{labels:meses,datasets:[
+    {label:'A Medir',data:meses.map(m=>mth[m]?.medir||0),backgroundColor:'rgba(37,99,235,.72)',borderRadius:6,borderSkipped:false},
+    {label:'Faturado',data:meses.map(m=>mth[m]?.fat||0),backgroundColor:'rgba(20,184,166,.72)',borderRadius:6,borderSkipped:false},
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'},tooltip:{callbacks:{label:ctx=>' '+R(ctx.raw)}}},scales:{y:{grid:{color:'rgba(0,0,0,.04)'},ticks:{callback:v=>'R$'+N(v/1e6,1)+'M'},border:{display:false}},x:{grid:{display:false}}}}});
+
+  cc('c-cr-vol',{type:'bar',data:{labels:CRS.map(c=>'CR '+c),datasets:[{label:'A Medir',data:CRS.map(c=>crd[c].medir),backgroundColor:['rgba(37,99,235,.75)','rgba(139,94,201,.75)','rgba(14,165,233,.7)','rgba(245,158,11,.75)'],borderRadius:6,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+R(ctx.raw)}}},scales:{x:{grid:{color:'rgba(0,0,0,.04)'},ticks:{callback:v=>'R$'+N(v/1e6,1)+'M'},border:{display:false}},y:{grid:{display:false}}}}});
+}
+
+/* ══════════════════════════════════════════════════════════════ */
+/* D2 — SLA & WORKFLOW                                           */
+/* ══════════════════════════════════════════════════════════════ */
+function renderD2(){
+  const el=document.getElementById('p2');
+  // Heatmap
+  const hmRows=CRS.map(cr=>{
+    const cells=STAGES.map(s=>{const c=D.filter(r=>r.cr===cr&&r.stage===s.id).length;const bg=c>0?s.bg:'transparent';const col=c>0?s.color:'var(--t3)';return`<td><span class="hmcell" style="background:${bg};color:${col}">${c||'—'}</span></td>`;}).join('');
+    return`<tr><td>${cr}</td>${cells}</tr>`;
+  }).join('');
+  // SLA blocks
+  const blocks=STAGES.filter(s=>s.id!=='faturado').map(s=>{
+    const items=slad.filter(r=>r.stage===s.id);if(!items.length)return'';
+    const late=items.filter(r=>r.sla.status==='dn').length;
+    const rows=items.map(r=>{
+      const {status,days,max,pct,label}=r.sla;
+      const bc=status==='ok'?'var(--ok)':status==='wn'?'var(--wn)':'var(--dn)';
+      return`<tr><td class="mono" style="font-weight:600">CR ${r.cr}</td><td class="mono" style="font-size:10.5px;color:var(--t3)">ID ${r.id}</td><td class="r">${R(r.medir)}</td><td style="font-size:11px;color:var(--t3)">${r.dataAprovacao||'—'}</td><td style="text-align:center"><span class="sbadge s-${status}">${label}</span></td><td>${max?`<div style="display:flex;align-items:center;gap:8px"><div style="flex:1;height:6px;background:var(--b3);border-radius:3px;overflow:hidden"><div style="height:100%;width:${pct}%;background:${bc};border-radius:3px"></div></div><span class="mono" style="font-size:10px;color:var(--t3);white-space:nowrap">${days}/${max}d</span></div>`:'—'}</td></tr>`;
+    }).join('');
+    return`<div class="card" style="margin-bottom:14px"><div class="ch"><div style="display:flex;align-items:center;gap:8px"><span style="width:7px;height:7px;border-radius:50%;background:${s.color};display:inline-block"></span><div class="ct">${s.label}</div></div><div style="display:flex;align-items:center;gap:8px"><span style="font-size:10.5px;color:var(--t3)">${items.length} BMs · SLA ${s.sla}d</span><span class="badge" style="background:${late>0?'rgba(239,68,68,.1)':s.bg};color:${late>0?'var(--dn)':s.color}">${late>0?late+' atrasado(s)':'Dentro do prazo'}</span></div></div><div style="overflow-x:auto"><table class="dt"><thead><tr><th>CR</th><th>ID</th><th class="r">A Medir</th><th>Dt. Aprov.</th><th style="text-align:center">Dias na Etapa</th><th>Progresso SLA</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+  }).join('');
+  const fat=D.filter(r=>r.stage==='faturado');
+  el.innerHTML=`
+  <div class="g4">
+    <div class="kpi kg"><div class="kl">Conformidade SLA</div><div class="kv lg" style="color:${conf>=80?'var(--ok)':conf>=60?'var(--wn)':'var(--dn)'}">${conf}%</div><div class="kf">${nOK} de ${active.length} BMs no prazo</div></div>
+    <div class="kpi kt"><div class="kl">Dentro do Prazo</div><div class="kv lg" style="color:var(--tl)">${nOK}</div><div class="kf">BMs com SLA OK</div></div>
+    <div class="kpi kw"><div class="kl">Em Alerta</div><div class="kv lg" style="color:var(--wn)">${nWN}</div><div class="kf">≥ 75% do prazo consumido</div></div>
+    <div class="kpi kr"><div class="kl">Fora do Prazo</div><div class="kv lg" style="color:var(--dn)">${nDN}</div><div class="kf">SLA expirado</div></div>
+  </div>
+  <div class="g21">
+    <div class="card"><div class="ch"><div class="ct">Heatmap CR × Etapa</div><span style="font-size:10px;color:var(--t3)">Qtd. de BMs por combinação</span></div><div class="cb" style="overflow-x:auto"><table class="hm"><thead><tr><th>CR ↓ Etapa →</th>${STAGES.map(s=>`<th style="color:${s.color}">${s.short}</th>`).join('')}</tr></thead><tbody>${hmRows}</tbody></table></div></div>
+    <div class="card"><div class="ch"><div class="ct">Distribuição por Etapa</div></div><div class="cb"><div class="cw" style="height:200px"><canvas id="c-stage-d"></canvas></div></div></div>
+  </div>
+  <div class="st"><span>Detalhe SLA — Boletins Ativos</span><span class="stb">${active.length} BMs ativos · Ref. 03/03/2026</span></div>
+  ${blocks}
+  ${fat.length>0?`<div class="card" style="padding:13px 16px;display:flex;align-items:center;gap:12px"><span style="width:7px;height:7px;border-radius:50%;background:var(--tl);flex-shrink:0"></span><div><div style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--tl)">Faturados</div><div style="font-size:12px;color:var(--t3);margin-top:2px">${fat.length} boletins · ${R(fat.reduce((s,r)=>s+(+r.medir||0),0))}</div></div><span class="badge" style="background:rgba(20,184,166,.1);color:var(--tl);margin-left:auto">SLA Encerrado</span></div>`:''}`;
+
+  cc('c-stage-d',{type:'doughnut',data:{labels:STAGES.map(s=>s.label),datasets:[{data:STAGES.map(s=>D.filter(r=>r.stage===s.id).length),backgroundColor:STAGES.map(s=>s.color),borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'bottom',labels:{padding:8,font:{size:10}}},tooltip:{callbacks:{label:ctx=>` ${ctx.label}: ${ctx.raw} BMs`}}}}});
+}
+
+/* ══════════════════════════════════════════════════════════════ */
+/* D3 — FINANCEIRO POR CR                                        */
+/* ══════════════════════════════════════════════════════════════ */
+let aCR=CRS[0];
+function renderD3(cr){
+  aCR=cr||aCR;
+  const el=document.getElementById('p3');
+  const rs=D.filter(r=>r.cr===aCR);
+  const cd=crd[aCR];
+  const pctLiq=(cd.medir-cd.glosa)/cd.medir*100;
+  const wfMax=cd.medir;
+  const wf=[
+    {label:'Volume a Medir',val:cd.medir,color:'#2563eb'},
+    {label:'Valor BM Enviado',val:cd.bm,color:'#22c55e',empty:!cd.bm},
+    {label:'(−) Glosas',val:cd.glosa,color:'#ef4444',empty:!cd.glosa},
+    {label:'Líquido Estimado',val:cd.medir-cd.glosa,color:'#14b8a6'},
+  ];
+  const crTabs=CRS.map(c=>`<button class="crtab${c===aCR?' on':''}" onclick="renderD3('${c}')">${c}</button>`).join('');
+  const sdist=STAGES.map(s=>rs.filter(r=>r.stage===s.id).length);
+  const trows=rs.map(r=>`<tr><td style="font-size:11px;color:var(--t3)">${r.mes||'—'}</td><td class="mono" style="font-size:10.5px;color:var(--t3)">ID ${r.id}</td><td class="r mono" style="font-weight:600">${R(r.medir)}</td><td class="r mono" style="color:${+r.valorBM>0?'var(--t1)':'var(--t3)'}">${+r.valorBM>0?R(r.valorBM):'—'}</td><td class="r mono" style="color:${+r.valorGlosa>0?'var(--dn)':'var(--t3)'}">${+r.valorGlosa>0?R(r.valorGlosa):'—'}</td><td><span class="badge" style="background:${SO(r.stage).bg};color:${SO(r.stage).color}">${SO(r.stage).label}</span></td></tr>`).join('');
+
+  el.innerHTML=`
+  <div class="st" style="margin-bottom:10px"><span>Selecione o Centro de Resultado</span></div>
+  <div class="cr-tabs">${crTabs}</div>
+  <div class="g4">
+    <div class="kpi kb"><div class="kl">Volume a Medir</div><div class="kv sm">${R(cd.medir)}</div><div class="kf">${cd.count} boletins</div></div>
+    <div class="kpi kt"><div class="kl">Faturado</div><div class="kv sm">${R(cd.fat)}</div><div class="kf">${cd.fatCount} BMs faturados</div></div>
+    <div class="kpi kr"><div class="kl">Glosas</div><div class="kv sm">${cd.glosa>0?R(cd.glosa):'R$\u00a00,00'}</div><div class="kf">${rs.filter(r=>+r.valorGlosa>0).length} BM(s) glosado(s)</div></div>
+    <div class="kpi kw"><div class="kl">Em Andamento</div><div class="kv sm">${R(cd.medir-cd.fat)}</div><div class="kf">${cd.count-cd.fatCount} BMs pendentes</div></div>
+  </div>
+  <div class="g21">
+    <div class="card">
+      <div class="ch"><div class="ct">Waterfall Financeiro — CR ${aCR}</div><span style="font-size:10px;color:var(--t3)">Medir → BM Enviado → (−) Glosa → Líquido</span></div>
+      <div class="cb">
+        ${wf.map(w=>{const p=wfMax>0?Math.max(Math.round(w.val/wfMax*100),w.val>0?3:0):0;return`<div class="wfi"><div class="wfl">${w.label}</div><div class="wft">${w.val>0?`<div class="wff" style="width:${p}%;background:${w.color}"><span>${R(w.val)}</span></div>`:`<div style="display:flex;align-items:center;padding:0 10px;height:100%;font-size:10.5px;color:var(--t3)">Não preenchido</div>`}</div><div class="wfv" style="color:${w.val>0?'var(--t1)':'var(--t3)'}">${w.val>0?R(w.val):'—'}</div></div>`;}).join('')}
+      </div>
+    </div>
+    <div class="card"><div class="ch"><div class="ct">BMs por Etapa</div></div><div class="cb"><div class="cw" style="height:220px"><canvas id="c-cr-stage"></canvas></div></div></div>
+  </div>
+  <div class="card">
+    <div class="ch"><div class="ct">Detalhe dos BMs — CR ${aCR}</div><span style="font-size:10.5px;color:var(--t3)">${rs.length} registros</span></div>
+    <div style="overflow-x:auto"><table class="dt"><thead><tr><th>Mês</th><th>ID BM</th><th class="r">A Medir</th><th class="r">Valor BM</th><th class="r">Glosa</th><th>Etapa</th></tr></thead><tbody>${trows}</tbody></table></div>
+    <div class="tfoot"><div class="tfl">${rs.length} boletins</div><div class="tfl">Total a medir: <strong>${R(cd.medir)}</strong></div>${cd.fat>0?`<div class="tfl">Faturado: <strong>${R(cd.fat)}</strong></div>`:''}</div>
+  </div>`;
+
+  cc('c-cr-stage',{type:'doughnut',data:{labels:STAGES.map(s=>s.label),datasets:[{data:sdist,backgroundColor:STAGES.map(s=>s.color),borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'55%',plugins:{legend:{position:'bottom',labels:{padding:8,font:{size:10},filter:(item,data)=>data.datasets[0].data[item.index]>0}},tooltip:{callbacks:{label:ctx=>` ${ctx.label}: ${ctx.raw} BMs`}}}}});
+}
+
+/* ══════════════════════════════════════════════════════════════ */
+/* D4 — QUALIDADE & RESPONSÁVEIS                                 */
+/* ══════════════════════════════════════════════════════════════ */
+function renderD4(){
+  const el=document.getElementById('p4');
+  const n=D.length;
+  const avgComp=Math.round(COMP.reduce((s,f)=>s+f.pct,0)/COMP.length);
+  const full100=COMP.filter(f=>f.pct===100).length;
+  const zero=COMP.filter(f=>f.pct===0).length;
+  const bmGlosa=D.filter(r=>+r.valorGlosa>0).length;
+
+  // Completude bars
+  const compBars=COMP.map(f=>`<div class="cbar"><div class="cbl" title="${f.label}">${f.label}</div><div class="cbt"><div class="cbf" style="width:${f.pct}%;background:${f.color}"></div></div><div class="cbp" style="color:${f.color}">${f.pct}%</div></div>`).join('');
+
+  // Responsável
+  const respMap={};
+  D.forEach(r=>{const k=r.responsavel||'Não informado';if(!respMap[k]){respMap[k]={count:0,medir:0};}respMap[k].count++;respMap[k].medir+=(+r.medir||0);});
+  const respArr=Object.entries(respMap).sort((a,b)=>b[1].medir-a[1].medir);
+  const maxR=Math.max(...respArr.map(([,v])=>v.medir));
+  const respBars=respArr.map(([name,v])=>{const p=maxR>0?Math.round(v.medir/maxR*100):0;const isUnk=name==='Não informado';return`<div class="rbar"><div class="rbl" style="color:${isUnk?'var(--t3)':'var(--t1)'}" title="${name}">${name}</div><div class="rbt"><div class="rbf" style="width:${Math.max(p,2)}%;background:${isUnk?'var(--b3)':'var(--blue)'};">${p>18?`<span style="color:${isUnk?'var(--t3)':'#fff'}">${v.count} BMs</span>`:''}</div></div><div class="rbv" style="color:${isUnk?'var(--t3)':'var(--t2)'}">${R(v.medir)}</div></div>`;}).join('');
+
+  // Alerts
+  const missing=COMP.filter(f=>f.pct<100).sort((a,b)=>a.pct-b.pct);
+  const alerts=missing.map(f=>{const cnt=Math.round((1-f.pct/100)*n);const sev=f.pct===0?'var(--dn)':f.pct<50?'var(--wn)':'var(--tl)';return`<div class="aitem"><div class="adot" style="background:${sev}"></div><div><div class="at">${cnt} BM${cnt!==1?'s':''} sem "${f.label}"</div><div class="as">${f.pct}% de preenchimento · ${n-cnt} de ${n} registros corretos</div></div><span class="sbadge s-${f.pct===0?'dn':f.pct<50?'wn':'ok'}" style="margin-left:auto">${f.pct}%</span></div>`;}).join('');
+
+  el.innerHTML=`
+  <div class="g3">
+    <div class="kpi ${avgComp>=80?'kg':avgComp>=50?'kw':'kr'}"><div class="kl">Completude Média dos Dados</div><div class="kv lg" style="color:${avgComp>=80?'var(--ok)':avgComp>=50?'var(--wn)':'var(--dn)'}">${avgComp}%</div><div class="kf">${full100} de ${COMP.length} campos 100% preenchidos</div></div>
+    <div class="kpi ${bmGlosa>0?'kr':'kg'}"><div class="kl">BMs com Glosa</div><div class="kv lg" style="color:${bmGlosa>0?'var(--dn)':'var(--ok)'}">${bmGlosa}</div><div class="kf">${bmGlosa>0?R(totalGlosa)+' acumulado':'Nenhum BM glosado'}</div></div>
+    <div class="kpi kr"><div class="kl">Campos Críticos Sem Dados</div><div class="kv lg" style="color:var(--dn)">${zero}</div><div class="kf">Campos com 0% de preenchimento</div></div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="ch"><div class="ct">Completude por Campo</div><span style="font-size:10px;color:var(--t3)">% de registros preenchidos</span></div><div class="cb">${compBars}</div></div>
+    <div class="card"><div class="ch"><div class="ct">Volume por Responsável</div><span style="font-size:10px;color:var(--wn)">Campo responsavel vazio em todos os BMs</span></div><div class="cb">${respBars}</div></div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="ch"><div class="ct">Distribuição de Qualidade dos Campos</div></div><div class="cb"><div class="cw" style="height:190px"><canvas id="c-comp-d"></canvas></div></div></div>
+    <div class="card"><div class="ch"><div class="ct">Pareto de Motivos de Glosa</div><span style="font-size:10px;color:var(--wn)">Dados insuficientes</span></div><div class="cb" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:170px;gap:10px"><svg viewBox="0 0 24 24" fill="none" stroke="var(--t3)" stroke-width="1.5" width="36" height="36"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/></svg><div style="text-align:center"><div style="font-size:12px;font-weight:600;color:var(--t2)">motivo_glosa é texto livre e raro</div><div style="font-size:11px;color:var(--t3);margin-top:4px;line-height:1.6">Substitua por um <strong>&lt;select&gt;</strong> com opções fixas<br>para habilitar análise de Pareto.</div></div></div></div>
+  </div>
+  <div class="st"><span>Alertas de Qualidade de Dados</span><span class="stb">${missing.length} campos com preenchimento incompleto</span></div>
+  ${alerts}`;
+
+  const catG=COMP.filter(f=>f.pct>=80).length;
+  const catM=COMP.filter(f=>f.pct>=40&&f.pct<80).length;
+  const catB=COMP.filter(f=>f.pct<40).length;
+  cc('c-comp-d',{type:'doughnut',data:{labels:['Completo ≥80%','Parcial 40–79%','Crítico <40%'],datasets:[{data:[catG,catM,catB],backgroundColor:['rgba(34,197,94,.75)','rgba(245,158,11,.75)','rgba(239,68,68,.75)'],borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'55%',plugins:{legend:{position:'bottom',labels:{padding:8,font:{size:10}}},tooltip:{callbacks:{label:ctx=>` ${ctx.label}: ${ctx.raw} campo(s)`}}}}});
+}
+
+/* ── TAB SWITCH ──────────────────────────────────────────────── */
+const renders={p1:renderD1,p2:renderD2,p3:()=>renderD3(aCR),p4:renderD4};
+function sw(btn,id){
+  document.querySelectorAll('.tb').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById(id).classList.add('on');
+  if(renders[id])renders[id]();
+}
+
+/* ── INIT ────────────────────────────────────────────────────── */
+renderD1();
+</script>
+</body>
+</html>

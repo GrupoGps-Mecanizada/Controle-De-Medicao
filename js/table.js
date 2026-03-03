@@ -104,14 +104,15 @@ const TableView = {
   },
 
   getFiltered() {
-    const { cr, stage, mes, q, cols } = ControlState.filters;
+    const { crs, stages, meses, q, cols } = ControlState.filters;
     const lowerQ = (q || '').toLowerCase();
 
     return (ControlState.records || []).filter(r => {
       // Global top-bar filters
-      const matchCR = !cr || cr === 'all' || r.cr === String(cr) || (cr === 'Sem CR' && (!r.cr || r.cr.trim() === ''));
-      const matchStage = !stage || stage === 'all' || r.stage === String(stage);
-      const matchMes = !mes || mes === 'all' || r.mes === String(mes);
+      const crVal = r.cr && r.cr.trim() !== '' ? String(r.cr) : 'Sem CR';
+      const matchCR = !crs || crs.length === 0 || crs.includes(crVal);
+      const matchStage = !stages || stages.length === 0 || stages.includes(String(r.stage));
+      const matchMes = !meses || meses.length === 0 || meses.includes(String(r.mes));
       const matchQ = !lowerQ ||
         (r.descricao && r.descricao.toLowerCase().includes(lowerQ)) ||
         (r.pedido && r.pedido.includes(lowerQ)) ||
@@ -137,14 +138,15 @@ const TableView = {
   },
 
   getFilteredForCol(targetColId) {
-    const { cr, stage, mes, q, cols } = ControlState.filters;
+    const { crs, stages, meses, q, cols } = ControlState.filters;
     const lowerQ = (q || '').toLowerCase();
 
     return (ControlState.records || []).filter(r => {
       // Global top-bar filters
-      const matchCR = !cr || cr === 'all' || r.cr === String(cr) || (cr === 'Sem CR' && (!r.cr || r.cr.trim() === ''));
-      const matchStage = !stage || stage === 'all' || r.stage === String(stage);
-      const matchMes = !mes || mes === 'all' || r.mes === String(mes);
+      const crVal = r.cr && r.cr.trim() !== '' ? String(r.cr) : 'Sem CR';
+      const matchCR = !crs || crs.length === 0 || crs.includes(crVal);
+      const matchStage = !stages || stages.length === 0 || stages.includes(String(r.stage));
+      const matchMes = !meses || meses.length === 0 || meses.includes(String(r.mes));
       const matchQ = !lowerQ ||
         (r.descricao && r.descricao.toLowerCase().includes(lowerQ)) ||
         (r.pedido && r.pedido.includes(lowerQ)) ||
