@@ -32,7 +32,6 @@ window.App = {
         const view = ControlState.currentView;
         if (view === 'dashboard' && typeof Dashboard !== 'undefined') Dashboard.render();
         if (view === 'table' && typeof TableView !== 'undefined') TableView.render();
-        if (view === 'sla' && typeof SLAView !== 'undefined') SLAView.render();
     },
 
     bindModal() {
@@ -67,7 +66,11 @@ window.App = {
         });
 
         const btnManageCRs = document.getElementById('btn-manage-crs');
-        if (btnManageCRs) btnManageCRs.addEventListener('click', () => this.openCRModal());
+        if (btnManageCRs) btnManageCRs.addEventListener('click', () => {
+            const navOverlay = document.getElementById('nav-menu-overlay');
+            if (navOverlay) navOverlay.classList.add('hidden');
+            this.openCRModal();
+        });
 
         const addCrBtn = document.getElementById('add-cr-btn');
         if (addCrBtn) {

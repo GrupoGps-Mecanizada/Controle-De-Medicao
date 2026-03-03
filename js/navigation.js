@@ -132,7 +132,7 @@ const Navigation = {
         }
 
         // Toggle Views
-        ['dashboard', 'table', 'sla'].forEach(v => {
+        ['dashboard', 'table'].forEach(v => {
             const el = document.getElementById(`${v}-view`);
             if (el) {
                 if (v === view) {
