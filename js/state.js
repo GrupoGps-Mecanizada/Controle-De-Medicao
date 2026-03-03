@@ -5,6 +5,7 @@ window.ControlState = {
         cr: 'all',
         stage: 'all',
         mes: 'all',
-        q: ''
+        q: '',
+        cols: {} // { 'cr': ['18512'], 'stage': ['faturado'] }
     }
 };

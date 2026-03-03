@@ -214,3 +214,119 @@
     color: var(--accent);
     background: var(--accent-glow);
 }
+
+/* ── COLUMN FILTERS (Excel-like) ───────────────────────────── */
+.th-wrap {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    justify-content: space-between;
+}
+
+.col-filter-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-3);
+    padding: 2px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.col-filter-btn:hover,
+.col-filter-btn.active {
+    color: var(--blue);
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.col-filter-menu {
+    position: absolute;
+    background: var(--bg-1);
+    border: 1px solid var(--border);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-radius: 6px;
+    padding: 8px;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 160px;
+    max-height: 280px;
+    font-family: 'Inter', sans-serif;
+    color: var(--text-1);
+    text-transform: none;
+    letter-spacing: normal;
+    font-weight: 500;
+}
+
+.cf-search {
+    padding: 6px 8px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 11px;
+    outline: none;
+    background: var(--bg-2);
+    color: var(--text-1);
+}
+
+.cf-search:focus {
+    border-color: var(--blue);
+}
+
+.cf-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    overflow-y: auto;
+    flex: 1;
+    max-height: 180px;
+    padding-right: 4px;
+}
+
+.cf-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    cursor: pointer;
+    color: var(--text-2);
+}
+
+.cf-item input {
+    cursor: pointer;
+    accent-color: var(--blue);
+}
+
+.cf-actions {
+    display: flex;
+    justify-content: space-between;
+    border-top: 1px solid var(--border);
+    padding-top: 8px;
+    margin-top: 4px;
+}
+
+.cf-btn {
+    font-size: 10px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    border: none;
+    background: var(--bg-2);
+    color: var(--text-2);
+    font-weight: 600;
+}
+
+.cf-btn:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.cf-btn.primary {
+    background: var(--blue);
+    color: #fff;
+}
+
+.cf-btn.primary:hover {
+    background: #1d4ed8;
+}
