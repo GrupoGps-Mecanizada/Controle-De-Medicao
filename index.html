@@ -242,9 +242,18 @@
             <div class="ff" style="display:flex;flex-direction:column;gap:4px;"><label
                 style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-3);">Responsável</label><input
                 class="finput" id="f-responsavel" placeholder="Nome" /></div>
-            <div class="ff" style="display:flex;flex-direction:column;gap:4px;grid-column:1/-1;"><label
-                style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-3);">Motivo da
-                Glosa</label><input class="finput" id="f-motivo" /></div>
+            <div class="ff" style="display:flex;flex-direction:column;gap:4px;grid-column:1/-1;">
+              <label
+                style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-3);display:flex;justify-content:space-between;">
+                Motivo da Glosa
+                <button id="btn-manage-motivos"
+                  style="background:none;border:none;color:var(--blue);cursor:pointer;font-size:10px;text-decoration:underline;">Gerenciar
+                  Motivos</button>
+              </label>
+              <select class="finput" id="f-motivo">
+                <!-- Loaded dynamically -->
+              </select>
+            </div>
             <div class="ff" style="display:flex;flex-direction:column;gap:4px;grid-column:1/-1;"><label
                 style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text-3);">Etapa do
                 Workflow</label><select class="finput" id="f-stage" style="height:34px"></select></div>
@@ -272,16 +281,55 @@
           <p style="font-size: 13px; color: var(--text-2); margin-bottom: 20px;">Adicione ou remova CRs que você deseja
             manter visíveis na Visão Geral permanentemente (mesmo quando não houver BMs).</p>
 
-          <div style="display:flex; gap:8px; margin-bottom:20px;">
-            <input type="text" id="new-cr-input" class="finp" style="flex:1" placeholder="Ex: 88888" />
-            <button id="add-cr-btn"
-              style="background:var(--blue);color:#fff;border:none;border-radius:6px;padding:0 16px;font-weight:600;cursor:pointer;font-size:13px;">Adicionar</button>
+          <div
+            style="display:flex; flex-direction:column; gap:8px; margin-bottom:20px; background:var(--bg-2); padding:12px; border-radius:6px; border:1px solid var(--border);">
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--text-3);margin-bottom:4px;">
+              Adicionar Novo CR</div>
+            <div style="display:flex; gap:8px;">
+              <input type="text" id="new-cr-id" class="finp" style="flex:1" placeholder="Nº do CR (ex: 88888)" />
+            </div>
+            <div style="display:flex; gap:8px;">
+              <input type="text" id="new-cr-contrato" class="finp" style="flex:1" placeholder="Nome do Contrato" />
+              <input type="text" id="new-cr-cliente" class="finp" style="flex:1" placeholder="Cliente" />
+            </div>
+            <div style="display:flex; gap:8px;">
+              <input type="text" id="new-cr-responsavel" class="finp" style="flex:1" placeholder="Responsável" />
+              <button id="add-cr-btn"
+                style="background:var(--blue);color:#fff;border:none;border-radius:6px;padding:0 16px;font-weight:600;cursor:pointer;font-size:13px;width:120px;">Adicionar</button>
+            </div>
           </div>
 
           <div
             style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);margin-bottom:8px;">
             CRs Cadastrados</div>
           <div id="cr-list" style="max-height: 250px; overflow-y: auto; display:flex; flex-direction:column; gap:6px;">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== MOTIVOS MANAGER MODAL ==================== -->
+    <div id="motivos-modal-overlay" class="modal-overlay hidden" style="z-index: 100000;">
+      <div class="modal-box" style="width: 400px;">
+        <div class="modal-header">
+          <div class="modal-title">Motivos de Glosa</div>
+          <button class="close-motivos-modal"
+            style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--text-3);line-height:1;">✕</button>
+        </div>
+        <div class="modal-body">
+          <div style="display:flex; gap:8px; margin-bottom:20px;">
+            <input type="text" id="new-motivo-input" class="finp" style="flex:1"
+              placeholder="Ex: Falta de Documentação" />
+            <button id="add-motivo-btn"
+              style="background:var(--blue);color:#fff;border:none;border-radius:6px;padding:0 16px;font-weight:600;cursor:pointer;font-size:13px;">Adicionar</button>
+          </div>
+
+          <div
+            style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);margin-bottom:8px;">
+            Motivos Cadastrados</div>
+          <div id="motivos-list"
+            style="max-height: 250px; overflow-y: auto; display:flex; flex-direction:column; gap:6px;">
             <!-- Rendered by JS -->
           </div>
         </div>

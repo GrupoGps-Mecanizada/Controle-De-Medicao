@@ -44,10 +44,12 @@ window.App = {
 
         const overlay = document.getElementById('modal-overlay');
         const crOverlay = document.getElementById('cr-modal-overlay');
+        const motivosOverlay = document.getElementById('motivos-modal-overlay');
 
         const closeAllModals = () => {
             if (overlay) overlay.classList.add('hidden');
             if (crOverlay) crOverlay.classList.add('hidden');
+            if (motivosOverlay) motivosOverlay.classList.add('hidden');
         };
 
         if (overlay) {
@@ -60,10 +62,27 @@ window.App = {
                 if (e.target === crOverlay) this.closeCRModal();
             });
         }
+        if (motivosOverlay) {
+            motivosOverlay.addEventListener('click', (e) => {
+                if (e.target === motivosOverlay) this.closeMotivosModal();
+            });
+        }
 
         document.querySelectorAll('.close-cr-modal').forEach(btn => {
             btn.addEventListener('click', () => this.closeCRModal());
         });
+
+        document.querySelectorAll('.close-motivos-modal').forEach(btn => {
+            btn.addEventListener('click', () => this.closeMotivosModal());
+        });
+
+        const btnManageMotivos = document.getElementById('btn-manage-motivos');
+        if (btnManageMotivos) {
+            btnManageMotivos.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.openMotivosModal();
+            });
+        }
 
         const btnManageCRs = document.getElementById('btn-manage-crs');
         if (btnManageCRs) btnManageCRs.addEventListener('click', () => {
@@ -74,19 +93,39 @@ window.App = {
 
         const addCrBtn = document.getElementById('add-cr-btn');
         if (addCrBtn) {
-            addCrBtn.addEventListener('click', () => {
-                const input = document.getElementById('new-cr-input');
-                const val = input.value.trim();
-                if (val) {
-                    if (!ControlState.fixedCRs.includes(val)) {
-                        ControlState.fixedCRs.push(val);
-                        API.saveFixedCRs();
-                        this.renderCRList();
-                        this.renderCurrentView(); // Refresh dashboard
+            addCrBtn.addEventListener('click', async () => {
+                const idInput = document.getElementById('new-cr-id');
+                const contratoInput = document.getElementById('new-cr-contrato');
+                const clienteInput = document.getElementById('new-cr-cliente');
+                const responsavelInput = document.getElementById('new-cr-responsavel');
+
+                const cr_id = idInput.value.trim();
+                const nome_contrato = contratoInput.value.trim();
+                const cliente = clienteInput.value.trim();
+                const responsavel = responsavelInput.value.trim();
+
+                if (cr_id) {
+                    if (!ControlState.fixedCRs.includes(cr_id)) {
+                        const newCR = {
+                            cr_id, nome_contrato, cliente, responsavel
+                        };
+                        try {
+                            await API.addCR(newCR);
+                            this.renderCRList();
+                            this.renderCurrentView(); // Refresh dashboard
+                            if (window.showToast) showToast('CR Adicionado com sucesso!');
+                        } catch (e) {
+                            if (window.showToast) showToast('Erro ao adicionar CR.', 'error');
+                        }
                     } else {
                         if (window.showToast) showToast('Este CR já está na lista.', 'warning');
                     }
-                    input.value = '';
+                    idInput.value = '';
+                    contratoInput.value = '';
+                    clienteInput.value = '';
+                    responsavelInput.value = '';
+                } else {
+                    if (window.showToast) showToast('O ID do CR é obrigatório.', 'warning');
                 }
             });
         }
@@ -104,6 +143,14 @@ window.App = {
                     }
                 }
             });
+        }
+    },
+
+    popMotivos() {
+        const select = document.getElementById('f-motivo');
+        if (select) {
+            select.innerHTML = '<option value="">Sem glosa (R$ 0,00)</option>' +
+                (ControlState.motivosGlosa || []).map(m => `<option value="${m}">${m}</option>`).join('');
         }
     },
 
@@ -132,6 +179,7 @@ window.App = {
         });
         this.popStages();
         this.popCRs();
+        this.popMotivos();
         document.getElementById('f-stage').value = 'enviado';
         document.getElementById('modal-overlay').classList.remove('hidden');
     },
@@ -167,11 +215,30 @@ window.App = {
 
         Object.entries(m).forEach(([k, v]) => {
             const el = document.getElementById('f-' + k);
-            if (el) el.value = v || '';
+            if (el) {
+                // If it is 'motivo', check if it is included, else append temporarily to select.
+                if (k === 'motivo' && v) {
+                    if (!ControlState.motivosGlosa.includes(v)) {
+                        el.innerHTML += `<option value="${v}">${v}</option>`;
+                    }
+                }
+                el.value = v || '';
+            }
         });
 
         this.popStages();
         this.popCRs();
+        this.popMotivos();
+
+        // Must run after popMotivos since it rebuilds the select
+        const fMotivo = document.getElementById('f-motivo');
+        if (fMotivo && m.motivo) {
+            if (!ControlState.motivosGlosa.includes(m.motivo)) {
+                fMotivo.innerHTML += `<option value="${m.motivo}">${m.motivo}</option>`;
+            }
+            fMotivo.value = m.motivo;
+        }
+
         document.getElementById('f-stage').value = r.stage;
         document.getElementById('modal-overlay').classList.remove('hidden');
     },
@@ -248,28 +315,37 @@ window.App = {
         const listContainer = document.getElementById('cr-list');
         if (!listContainer) return;
 
-        if (!ControlState.fixedCRs || ControlState.fixedCRs.length === 0) {
+        if (!ControlState.fixedCRsObjects || ControlState.fixedCRsObjects.length === 0) {
             listContainer.innerHTML = `<div style="padding:10px;text-align:center;color:var(--text-3);font-size:12px;background:var(--bg-1);border-radius:6px;">Nenhum CR fixo cadastrado.</div>`;
             return;
         }
 
-        listContainer.innerHTML = ControlState.fixedCRs.sort().map(cr => `
-            <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px; background:var(--bg-1); border:1px solid var(--border); border-radius:6px;">
-                <span style="font-weight:600; color:var(--text-1); font-size:13px;">${cr}</span>
-                <button onclick="App.removeFixedCR('${cr}')" style="background:none;border:none;color:var(--danger);cursor:pointer;" title="Remover CR">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6"/></svg>
-                </button>
+        listContainer.innerHTML = ControlState.fixedCRsObjects.sort((a, b) => a.cr_id.localeCompare(b.cr_id)).map(obj => `
+            <div style="display:flex; flex-direction:column; padding:10px 12px; background:var(--bg-1); border:1px solid var(--border); border-radius:6px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-weight:600; color:var(--text-1); font-size:14px;">${obj.cr_id} ${obj.nome_contrato ? `- ${obj.nome_contrato}` : ''}</span>
+                    <button onclick="App.removeFixedCR('${obj.cr_id}')" style="background:none;border:none;color:var(--danger);cursor:pointer;" title="Remover CR">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6"/></svg>
+                    </button>
+                </div>
+                <div style="font-size:12px; color:var(--text-2); margin-top:4px;">
+                    ${obj.cliente ? `<b>Cliente:</b> ${obj.cliente} <br>` : ''}
+                    ${obj.responsavel ? `<b>Resp:</b> ${obj.responsavel}` : ''}
+                </div>
             </div>
         `).join('');
     },
 
-    removeFixedCR(cr) {
+    async removeFixedCR(cr) {
         if (!confirm(`Deseja remover o CR ${cr} da lista fixa?`)) return;
-        ControlState.fixedCRs = ControlState.fixedCRs.filter(c => c !== cr);
-        API.saveFixedCRs();
-        this.renderCRList();
-        this.renderCurrentView(); // Refresh dashboard
-        if (window.showToast) showToast(`CR ${cr} removido da lista.`);
+        try {
+            await API.deleteCR(cr);
+            this.renderCRList();
+            this.renderCurrentView(); // Refresh dashboard
+            if (window.showToast) showToast(`CR ${cr} removido da lista.`);
+        } catch (e) {
+            if (window.showToast) showToast('Erro ao remover CR.', 'error');
+        }
     }
 };
 

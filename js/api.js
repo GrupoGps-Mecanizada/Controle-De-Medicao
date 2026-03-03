@@ -1,5 +1,6 @@
 const API = {
     async loadRecords() {
+        await this.loadMotivosGlosa();
         await this.loadFixedCRs();
 
         // For now try Supabase, if missing/fail fallback to INIT
@@ -8,7 +9,17 @@ const API = {
                 const { data, error } = await supabase.from('boletins_medicao').select('*');
                 if (error) throw error;
                 if (data && data.length > 0) {
-                    ControlState.records = data.map(this.mapFromDB);
+                    ControlState.records = data.map(r => {
+                        let parsed = this.mapFromDB(r);
+                        // Migrate old stages to current standard
+                        if (['coleta', 'bm_preenchimento', 'bm_enviado'].includes(parsed.stage)) {
+                            parsed.stage = 'enviado';
+                        }
+                        if (parsed.stage === 'concluido') {
+                            parsed.stage = 'faturado';
+                        }
+                        return parsed;
+                    });
                     return;
                 }
             } catch (e) {
@@ -31,13 +42,15 @@ const API = {
     async loadFixedCRs() {
         if (window.supabase) {
             try {
-                const { data, error } = await supabase.from('app_config').select('value').eq('key', 'fixed_crs').single();
-                if (!error && data && data.value) {
-                    ControlState.fixedCRs = data.value;
+                // Fetch from the new 'crs' table
+                const { data, error } = await supabase.from('crs').select('*').order('cr_id', { ascending: true });
+                if (!error && data) {
+                    ControlState.fixedCRsObjects = data; // Keep full payload
+                    ControlState.fixedCRs = data.map(c => c.cr_id); // Compatibility with old string array code
                     return;
                 }
             } catch (e) {
-                console.warn('Supabase not ready or empty for app_config fixed_crs', e);
+                console.warn('Supabase not ready or empty for crs table', e);
             }
         }
 
@@ -45,26 +58,59 @@ const API = {
             const d = localStorage.getItem('fixed-crs-v1');
             if (d) {
                 ControlState.fixedCRs = JSON.parse(d);
+                ControlState.fixedCRsObjects = ControlState.fixedCRs.map(c => ({ cr_id: c, nome_contrato: '', cliente: '', responsavel: '' }));
                 return;
             }
         } catch (e) { }
 
         // Default CRs as requested
-        ControlState.fixedCRs = ['18512', '18515', '18521', '18532', '23949', '25405', '39873', '44428', '48367', '63406', '63407', '65811'];
-        this.saveFixedCRs();
+        ControlState.fixedCRsObjects = [
+            { cr_id: '18512', nome_contrato: '', cliente: '', responsavel: '' },
+            { cr_id: '18515', nome_contrato: '', cliente: '', responsavel: '' },
+            { cr_id: '18521', nome_contrato: '', cliente: '', responsavel: '' }
+        ];
+        ControlState.fixedCRs = ControlState.fixedCRsObjects.map(c => c.cr_id);
     },
 
-    async saveFixedCRs() {
+    async loadMotivosGlosa() {
         if (window.supabase) {
             try {
-                // Upsert behavior on app_config
-                const { error } = await supabase.from('app_config').upsert({ key: 'fixed_crs', value: ControlState.fixedCRs, updated_at: new Date().toISOString() });
-                if (error) throw error;
+                const { data, error } = await supabase.from('app_config').select('value').eq('key', 'motivos_glosa').single();
+                if (!error && data && data.value) {
+                    ControlState.motivosGlosa = data.value;
+                    return;
+                }
             } catch (e) {
-                console.error('Supabase save fixed_crs error', e);
+                console.warn('Supabase not ready or empty for app_config motivos_glosa', e);
             }
         }
 
+        try {
+            const d = localStorage.getItem('motivos-glosa-v1');
+            if (d) {
+                ControlState.motivosGlosa = JSON.parse(d);
+                return;
+            }
+        } catch (e) { }
+    },
+
+    async saveMotivosGlosa() {
+        if (window.supabase) {
+            try {
+                const { error } = await supabase.from('app_config').upsert({ key: 'motivos_glosa', value: ControlState.motivosGlosa, updated_at: new Date().toISOString() });
+                if (error) throw error;
+            } catch (e) {
+                console.error('Supabase save motivos_glosa error', e);
+            }
+        }
+
+        try {
+            localStorage.setItem('motivos-glosa-v1', JSON.stringify(ControlState.motivosGlosa));
+        } catch (e) { }
+    },
+
+    async saveFixedCRs() {
+        // Kept for local fallback only. Individual CRUD happens via API endpoints
         try {
             localStorage.setItem('fixed-crs-v1', JSON.stringify(ControlState.fixedCRs));
         } catch (e) { }
@@ -114,6 +160,50 @@ const API = {
         }
         ControlState.records = ControlState.records.filter(r => String(r.id) !== String(id));
         this.saveRecords();
+    },
+
+    // --- CR Management API ---
+    async addCR(crData) {
+        if (window.supabase) {
+            try {
+                const { error } = await supabase.from('crs').insert([crData]);
+                if (error) throw error;
+            } catch (e) { console.error('Supabase DB error adding CR', e); throw e; }
+        }
+
+        // Update local state
+        ControlState.fixedCRsObjects.push(crData);
+        ControlState.fixedCRs.push(crData.cr_id);
+        this.saveFixedCRs();
+    },
+
+    async updateCR(cr_id, crData) {
+        if (window.supabase) {
+            try {
+                const { error } = await supabase.from('crs').update(crData).eq('cr_id', cr_id);
+                if (error) throw error;
+            } catch (e) { console.error('Supabase DB error updating CR', e); throw e; }
+        }
+
+        // Update local state
+        const objIndex = ControlState.fixedCRsObjects.findIndex(c => String(c.cr_id) === String(cr_id));
+        if (objIndex >= 0) {
+            ControlState.fixedCRsObjects[objIndex] = { ...ControlState.fixedCRsObjects[objIndex], ...crData };
+        }
+    },
+
+    async deleteCR(cr_id) {
+        if (window.supabase) {
+            try {
+                const { error } = await supabase.from('crs').delete().eq('cr_id', cr_id);
+                if (error) throw error;
+            } catch (e) { console.error('Supabase DB error deleting CR', e); throw e; }
+        }
+
+        // Update local state
+        ControlState.fixedCRsObjects = ControlState.fixedCRsObjects.filter(c => String(c.cr_id) !== String(cr_id));
+        ControlState.fixedCRs = ControlState.fixedCRs.filter(c => String(c) !== String(cr_id));
+        this.saveFixedCRs();
     },
 
     // Helpers

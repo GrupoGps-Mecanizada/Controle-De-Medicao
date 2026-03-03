@@ -33,7 +33,7 @@ const TableView = {
         <td class="tc-val r">${fmt(r.medir)}</td>
         <td class="tc-gray">${r.dataEnvio || '—'}</td>
         <td class="${r.valorBM ? 'tc-val' : 'tc-zero'} r">${r.valorBM ? fmt(r.valorBM) : '—'}</td>
-        <td class="${r.valorGlosa ? 'tc-red tc-zero' : 'tc-zero'} r">${r.valorGlosa ? fmt(r.valorGlosa) : '—'}</td>
+        <td class="${r.valorGlosa ? 'tc-red tc-zero' : 'tc-zero'} r" title="${r.motivoGlosa || ''}">${r.valorGlosa ? fmt(r.valorGlosa) : '—'} ${r.motivoGlosa ? `<br/><span style="font-size:9px;color:var(--text-3);">${r.motivoGlosa}</span>` : ''}</td>
         <td class="tc-gray">${r.dataAprovacao || '—'}</td>
         <td><span class="badge" style="background:${s ? s.bg : '#ccc'};color:${s ? s.color : '#333'}">${s ? s.label : 'Desconhecido'}</span></td>
         <td>${lastMod}</td>
@@ -62,7 +62,7 @@ const TableView = {
               ${this.th('Medir (R$)', '', 'r')}
               ${this.th('Dt. Envio', 'dataEnvio')}
               ${this.th('Val. BM', '', 'r')}
-              ${this.th('Glosa', '', 'r')}
+              ${this.th('Glosa', 'motivoGlosa', 'r')}
               ${this.th('Dt. Aprov.', 'dataAprovacao')}
               ${this.th('Etapa', 'stage')}
               ${this.th('Última Mod.', 'updatedBy')}

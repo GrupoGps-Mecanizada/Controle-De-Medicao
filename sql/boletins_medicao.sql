@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS public.boletins_medicao (
     valor_glosa NUMERIC(12,2),
     motivo_glosa TEXT,
     responsavel TEXT,
-    stage TEXT DEFAULT 'coleta',
+    stage TEXT DEFAULT 'enviado',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
