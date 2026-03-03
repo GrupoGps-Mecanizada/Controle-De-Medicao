@@ -65,8 +65,14 @@ const Navigation = {
         const ps = ControlState.filters.stage;
         const pm = ControlState.filters.mes;
 
-        // Get unique CRs and Months
-        const crs = [...new Set((ControlState.records || []).map(r => r.cr).filter(Boolean))].sort();
+        // Get unique CRs including fixed CRs, and handle empty CRs
+        const recordCRs = (ControlState.records || []).map(r => r.cr ? r.cr.trim() : 'Sem CR');
+        const crs = [...new Set([...recordCRs, ...(window.ControlState.fixedCRs || [])])].sort((a, b) => {
+            if (a === 'Sem CR') return 1;
+            if (b === 'Sem CR') return -1;
+            return a.localeCompare(b);
+        });
+
         const meses = [...new Set((ControlState.records || []).map(r => r.mes).filter(Boolean))].sort((a, b) => {
             const getD = (m) => {
                 const parts = m.split('/');
@@ -78,7 +84,8 @@ const Navigation = {
             return getD(b) - getD(a); // Sort descending
         });
 
-        cr.innerHTML = '<option value="all">Todos os CRs</option>' + crs.map(c => `<option value="${c}"${pc === String(c) ? ' selected' : ''}>CR ${c}</option>`).join('');
+        const mkCrLabel = (c) => c === 'Sem CR' ? c : `CR ${c}`;
+        cr.innerHTML = '<option value="all">Todos os CRs</option>' + crs.map(c => `<option value="${c}"${pc === String(c) ? ' selected' : ''}>${mkCrLabel(c)}</option>`).join('');
         st.innerHTML = '<option value="all">Todas as Etapas</option>' + STAGES.map(s => `<option value="${s.id}"${ps === s.id ? ' selected' : ''}>${s.label}</option>`).join('');
         ms.innerHTML = '<option value="all">Todos os Meses</option>' + meses.map(m => `<option value="${m}"${pm === String(m) ? ' selected' : ''}>${m}</option>`).join('');
     },

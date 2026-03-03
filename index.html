@@ -151,7 +151,17 @@
         </div>
       </div>
 
-      <div id="topbar-right">
+      <div id="topbar-right" style="display:flex; gap:8px;">
+        <button class="btn btn-secondary" id="btn-manage-crs"
+          style="display:flex;align-items:center;gap:6px;border-radius:6px;background:#fff;color:var(--text-1);border:1px solid var(--border);padding:6px 12px;font-weight:600;font-size:12px;cursor:pointer;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
+            </path>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+          </svg>
+          Gerenciar CRs
+        </button>
         <button class="btn btn-primary" id="btn-novo-bm"
           style="display:flex;align-items:center;gap:6px;border-radius:6px;background:var(--blue);color:#fff;border:none;padding:6px 12px;font-weight:600;font-size:12px;cursor:pointer;">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -254,6 +264,34 @@
             Boletim</button>
           <button class="btn close-modal"
             style="padding:10px 20px;background:#fff;border:1px solid var(--border);border-radius:6px;font-weight:600;color:var(--text-2);">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== CR MANAGER MODAL ==================== -->
+    <div id="cr-modal-overlay" class="modal-overlay hidden">
+      <div class="modal-box" style="width: 400px;">
+        <div class="modal-header">
+          <div class="modal-title">Gerenciar CRs Fixos</div>
+          <button class="close-cr-modal"
+            style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--text-3);line-height:1;">✕</button>
+        </div>
+        <div class="modal-body">
+          <p style="font-size: 13px; color: var(--text-2); margin-bottom: 20px;">Adicione ou remova CRs que você deseja
+            manter visíveis na Visão Geral permanentemente (mesmo quando não houver BMs).</p>
+
+          <div style="display:flex; gap:8px; margin-bottom:20px;">
+            <input type="text" id="new-cr-input" class="finp" style="flex:1" placeholder="Ex: 88888" />
+            <button id="add-cr-btn"
+              style="background:var(--blue);color:#fff;border:none;border-radius:6px;padding:0 16px;font-weight:600;cursor:pointer;font-size:13px;">Adicionar</button>
+          </div>
+
+          <div
+            style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);margin-bottom:8px;">
+            CRs Cadastrados</div>
+          <div id="cr-list" style="max-height: 250px; overflow-y: auto; display:flex; flex-direction:column; gap:6px;">
+            <!-- Rendered by JS -->
+          </div>
         </div>
       </div>
     </div>

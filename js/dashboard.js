@@ -9,8 +9,14 @@ const Dashboard = {
         const totalAndamento = totalGeral - totalFaturado;
         const totalGlosa = records.reduce((s, r) => s + (parseFloat(r.valorGlosa) || 0), 0);
 
-        // Get unique CRs
-        const crs = [...new Set(records.map(r => r.cr).filter(Boolean))].sort();
+        // Get unique CRs including fixed CRs, and handle empty CRs
+        const recordCRs = records.map(r => r.cr ? r.cr.trim() : 'Sem CR');
+        const crs = [...new Set([...recordCRs, ...(window.ControlState.fixedCRs || [])])].sort((a, b) => {
+            if (a === 'Sem CR') return 1;
+            if (b === 'Sem CR') return -1;
+            return a.localeCompare(b);
+        });
+
 
         const html = `<div class="kpi-row">
       <div class="kpi kb"><div class="klabel">Total Geral</div><div class="kvalue md">${fmt(totalGeral)}</div><div class="kfoot">${n} boletins cadastrados</div></div>
@@ -25,7 +31,7 @@ const Dashboard = {
         }).join('')}</div>
     <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);margin-bottom:10px;margin-top:20px;">Situação por CR</div>
     <div class="cr-grid">${crs.map(cr => {
-            const rs = records.filter(r => r.cr === cr);
+            const rs = records.filter(r => (r.cr ? r.cr.trim() : 'Sem CR') === cr);
             const mTot = rs.reduce((s, r) => s + (Number(r.medir) || 0), 0);
             const mGl = rs.reduce((s, r) => s + (parseFloat(r.valorGlosa) || 0), 0);
             const fat = rs.filter(r => r.stage === 'faturado').length;

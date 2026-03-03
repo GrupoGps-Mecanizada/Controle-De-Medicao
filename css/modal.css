@@ -1,5 +1,6 @@
 /* ===================== MODAL ===================== */
-#modal-overlay {
+#modal-overlay,
+.modal-overlay {
     position: fixed;
     inset: 0;
     background: #00000025;
@@ -11,11 +12,13 @@
     backdrop-filter: blur(4px);
 }
 
-#modal-overlay:not(.hidden) {
+#modal-overlay:not(.hidden),
+.modal-overlay:not(.hidden) {
     display: flex
 }
 
-#modal {
+#modal,
+.modal-box {
     background: var(--bg-1);
     border: 1px solid var(--border);
     border-radius: 12px;
@@ -90,12 +93,15 @@
 
 /* ===================== RESPONSIVE ===================== */
 @media (max-width: 480px) {
-    #modal {
+
+    #modal,
+    .modal-box {
         max-width: 100%;
         border-radius: 12px;
     }
 
-    #modal-overlay {
+    #modal-overlay,
+    .modal-overlay {
         padding: 12px;
     }
 }

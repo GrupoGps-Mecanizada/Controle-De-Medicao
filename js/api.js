@@ -24,6 +24,50 @@ const API = {
 
         ControlState.records = INIT.map(r => ({ ...r }));
         this.saveRecords();
+
+        await this.loadFixedCRs();
+    },
+
+    async loadFixedCRs() {
+        if (window.supabase) {
+            try {
+                const { data, error } = await supabase.from('app_config').select('value').eq('key', 'fixed_crs').single();
+                if (!error && data && data.value) {
+                    ControlState.fixedCRs = data.value;
+                    return;
+                }
+            } catch (e) {
+                console.warn('Supabase not ready or empty for app_config fixed_crs', e);
+            }
+        }
+
+        try {
+            const d = localStorage.getItem('fixed-crs-v1');
+            if (d) {
+                ControlState.fixedCRs = JSON.parse(d);
+                return;
+            }
+        } catch (e) { }
+
+        // Default CRs as requested
+        ControlState.fixedCRs = ['18512', '18515', '18521', '18532', '23949', '25405', '39873', '44428', '48367', '63406', '63407', '65811'];
+        this.saveFixedCRs();
+    },
+
+    async saveFixedCRs() {
+        if (window.supabase) {
+            try {
+                // Upsert behavior on app_config
+                const { error } = await supabase.from('app_config').upsert({ key: 'fixed_crs', value: ControlState.fixedCRs, updated_at: new Date().toISOString() });
+                if (error) throw error;
+            } catch (e) {
+                console.error('Supabase save fixed_crs error', e);
+            }
+        }
+
+        try {
+            localStorage.setItem('fixed-crs-v1', JSON.stringify(ControlState.fixedCRs));
+        } catch (e) { }
     },
 
     async saveRecords() {

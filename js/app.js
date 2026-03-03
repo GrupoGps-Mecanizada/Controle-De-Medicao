@@ -44,9 +44,47 @@ window.App = {
         });
 
         const overlay = document.getElementById('modal-overlay');
+        const crOverlay = document.getElementById('cr-modal-overlay');
+
+        const closeAllModals = () => {
+            if (overlay) overlay.classList.add('hidden');
+            if (crOverlay) crOverlay.classList.add('hidden');
+        };
+
         if (overlay) {
             overlay.addEventListener('click', (e) => {
                 if (e.target === overlay) this.closeModal();
+            });
+        }
+        if (crOverlay) {
+            crOverlay.addEventListener('click', (e) => {
+                if (e.target === crOverlay) this.closeCRModal();
+            });
+        }
+
+        document.querySelectorAll('.close-cr-modal').forEach(btn => {
+            btn.addEventListener('click', () => this.closeCRModal());
+        });
+
+        const btnManageCRs = document.getElementById('btn-manage-crs');
+        if (btnManageCRs) btnManageCRs.addEventListener('click', () => this.openCRModal());
+
+        const addCrBtn = document.getElementById('add-cr-btn');
+        if (addCrBtn) {
+            addCrBtn.addEventListener('click', () => {
+                const input = document.getElementById('new-cr-input');
+                const val = input.value.trim();
+                if (val) {
+                    if (!ControlState.fixedCRs.includes(val)) {
+                        ControlState.fixedCRs.push(val);
+                        API.saveFixedCRs();
+                        this.renderCRList();
+                        this.renderCurrentView(); // Refresh dashboard
+                    } else {
+                        if (window.showToast) showToast('Este CR já está na lista.', 'warning');
+                    }
+                    input.value = '';
+                }
             });
         }
 
@@ -181,6 +219,43 @@ window.App = {
 
     closeModal() {
         document.getElementById('modal-overlay').classList.add('hidden');
+    },
+
+    openCRModal() {
+        this.renderCRList();
+        document.getElementById('cr-modal-overlay').classList.remove('hidden');
+    },
+
+    closeCRModal() {
+        document.getElementById('cr-modal-overlay').classList.add('hidden');
+    },
+
+    renderCRList() {
+        const listContainer = document.getElementById('cr-list');
+        if (!listContainer) return;
+
+        if (!ControlState.fixedCRs || ControlState.fixedCRs.length === 0) {
+            listContainer.innerHTML = `<div style="padding:10px;text-align:center;color:var(--text-3);font-size:12px;background:var(--bg-1);border-radius:6px;">Nenhum CR fixo cadastrado.</div>`;
+            return;
+        }
+
+        listContainer.innerHTML = ControlState.fixedCRs.sort().map(cr => `
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px; background:var(--bg-1); border:1px solid var(--border); border-radius:6px;">
+                <span style="font-weight:600; color:var(--text-1); font-size:13px;">${cr}</span>
+                <button onclick="App.removeFixedCR('${cr}')" style="background:none;border:none;color:var(--danger);cursor:pointer;" title="Remover CR">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6"/></svg>
+                </button>
+            </div>
+        `).join('');
+    },
+
+    removeFixedCR(cr) {
+        if (!confirm(`Deseja remover o CR ${cr} da lista fixa?`)) return;
+        ControlState.fixedCRs = ControlState.fixedCRs.filter(c => c !== cr);
+        API.saveFixedCRs();
+        this.renderCRList();
+        this.renderCurrentView(); // Refresh dashboard
+        if (window.showToast) showToast(`CR ${cr} removido da lista.`);
     }
 };
 

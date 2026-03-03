@@ -24,7 +24,7 @@ const TableView = {
         }
 
         return `<tr>
-        <td class="tc-cr">${r.cr}</td>
+        <td class="tc-cr">${(r.cr && r.cr.trim() !== '') ? r.cr : 'Sem CR'}</td>
         <td class="tc-gray">${r.mes || '—'}</td>
         <td class="tc-gray">${r.periodo || '—'}</td>
         <td><div class="tc-desc" title="${r.descricao}">${r.descricao}</div></td>
@@ -109,7 +109,7 @@ const TableView = {
 
     return (ControlState.records || []).filter(r => {
       // Global top-bar filters
-      const matchCR = !cr || cr === 'all' || r.cr === String(cr);
+      const matchCR = !cr || cr === 'all' || r.cr === String(cr) || (cr === 'Sem CR' && (!r.cr || r.cr.trim() === ''));
       const matchStage = !stage || stage === 'all' || r.stage === String(stage);
       const matchMes = !mes || mes === 'all' || r.mes === String(mes);
       const matchQ = !lowerQ ||
@@ -142,7 +142,7 @@ const TableView = {
 
     return (ControlState.records || []).filter(r => {
       // Global top-bar filters
-      const matchCR = !cr || cr === 'all' || r.cr === String(cr);
+      const matchCR = !cr || cr === 'all' || r.cr === String(cr) || (cr === 'Sem CR' && (!r.cr || r.cr.trim() === ''));
       const matchStage = !stage || stage === 'all' || r.stage === String(stage);
       const matchMes = !mes || mes === 'all' || r.mes === String(mes);
       const matchQ = !lowerQ ||
@@ -178,7 +178,15 @@ const TableView = {
 
     // Get distinct values for this column based on records ALREADY filtered by OTHER filters
     const baseRecs = this.getFilteredForCol(colId);
-    const distinct = [...new Set(baseRecs.map(r => String(r[colId] || '')))].sort();
+    let distinct = [...new Set(baseRecs.map(r => String(r[colId] || '')))].sort();
+
+    if (colId === 'cr') {
+      distinct = [...new Set(baseRecs.map(r => r.cr ? r.cr.trim() : 'Sem CR'))].sort((a, b) => {
+        if (a === 'Sem CR') return 1;
+        if (b === 'Sem CR') return -1;
+        return a.localeCompare(b);
+      });
+    }
 
     const selected = (ControlState.filters.cols && ControlState.filters.cols[colId]) || [];
 

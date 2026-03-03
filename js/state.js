@@ -1,5 +1,6 @@
 window.ControlState = {
     records: [],
+    fixedCRs: [],
     currentView: 'dashboard',
     filters: {
         cr: 'all',
