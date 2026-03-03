@@ -48,19 +48,19 @@ body {
 /* ===================== MAIN CONTENT ===================== */
 #main {
     flex: 1;
-    overflow: hidden;
+    overflow-y: auto;
     position: relative;
+    padding: 0 22px;
 }
 
 .view {
-    display: none;
-    height: 100%;
-    overflow: hidden
+    display: block;
+    overflow-y: auto;
+    padding-bottom: 24px;
 }
 
 .view.active {
-    display: flex;
-    flex-direction: column
+    display: block;
 }
 
 /* ===================== SKELETON ===================== */

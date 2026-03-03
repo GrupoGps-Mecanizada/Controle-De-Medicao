@@ -19,6 +19,12 @@
   --yellow: #c99a1a;
   --red: #d64545;
   --cyan: #1a9eb8;
+  --blue: #2563eb;
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --teal: #14b8a6;
+  --topbar-height: 48px;
   --font-display: 'Inter', sans-serif;
   --font-mono: 'Inter', sans-serif;
   --radius: 12px;

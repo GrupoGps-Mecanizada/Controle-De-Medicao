@@ -133,7 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const err = document.getElementById('login-error');
             const email = document.getElementById('login-user').value;
             const pass = document.getElementById('login-pass').value;
-            const isReg = !document.getElementById('group-name').style.display || document.getElementById('group-name').style.display !== 'none';
+            const isReg = document.getElementById('group-name').style.display !== 'none' && document.getElementById('group-name').style.display !== '';
             const name = document.getElementById('login-name').value;
 
             btn.disabled = true;

@@ -33,10 +33,16 @@ const API = {
     },
 
     async addRecord(data) {
-        const newRecord = { ...data, id: Date.now().toString() };
+        const localId = Date.now().toString();
+        const newRecord = { ...data, id: localId };
         if (window.supabase) {
             try {
-                await supabase.from('boletins_medicao').insert([this.mapToDB(newRecord)]);
+                const dbRow = this.mapToDB(newRecord);
+                delete dbRow.id;
+                const { data: inserted, error } = await supabase.from('boletins_medicao').insert([dbRow]).select();
+                if (!error && inserted && inserted[0]) {
+                    newRecord.id = inserted[0].id;
+                }
             } catch (e) { console.error('Supabase DB error', e); }
         }
         ControlState.records.push(newRecord);

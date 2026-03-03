@@ -198,3 +198,19 @@
     color: var(--danger);
     border-color: var(--danger);
 }
+
+.btn.bd {
+    background: var(--bg-1);
+    border: 1px solid var(--border);
+    color: var(--text-2);
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    transition: all .1s;
+}
+
+.btn.bd:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-glow);
+}

@@ -32,6 +32,7 @@ window.App = {
         const view = ControlState.currentView;
         if (view === 'dashboard' && typeof Dashboard !== 'undefined') Dashboard.render();
         if (view === 'table' && typeof TableView !== 'undefined') TableView.render();
+        if (view === 'sla' && typeof SLAView !== 'undefined') SLAView.render();
     },
 
     bindModal() {

@@ -11,7 +11,7 @@
     backdrop-filter: blur(4px);
 }
 
-#modal-overlay.open {
+#modal-overlay:not(.hidden) {
     display: flex
 }
 
