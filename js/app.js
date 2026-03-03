@@ -64,12 +64,12 @@ window.App = {
     openNew() {
         document.getElementById('mtitle').textContent = 'Novo Boletim de Medição';
         document.getElementById('eid').value = '';
-        ['cr', 'periodo', 'pedido', 'folha', 'descricao', 'medir', 'aprovacao', 'envio', 'valorBM', 'glosa', 'responsavel', 'motivo'].forEach(f => {
+        ['cr', 'mes', 'periodo', 'pedido', 'folha', 'descricao', 'medir', 'aprovacao', 'envio', 'valorBM', 'glosa', 'responsavel', 'motivo'].forEach(f => {
             const el = document.getElementById('f-' + f);
             if (el) el.value = '';
         });
         this.popStages();
-        document.getElementById('f-stage').value = 'coleta';
+        document.getElementById('f-stage').value = 'enviado';
         document.getElementById('modal-overlay').classList.remove('hidden');
     },
 
@@ -81,7 +81,7 @@ window.App = {
         document.getElementById('eid').value = id;
 
         const m = {
-            cr: r.cr, periodo: r.periodo, pedido: r.pedido, folha: r.folhaRegistro, descricao: r.descricao,
+            cr: r.cr, mes: r.mes, periodo: r.periodo, pedido: r.pedido, folha: r.folhaRegistro, descricao: r.descricao,
             medir: r.medir, aprovacao: r.dataAprovacao, envio: r.dataEnvio, valorBM: r.valorBM,
             glosa: r.valorGlosa, responsavel: r.responsavel, motivo: r.motivoGlosa
         };
@@ -100,6 +100,7 @@ window.App = {
         const id = document.getElementById('eid').value;
         const d = {
             cr: document.getElementById('f-cr').value,
+            mes: document.getElementById('f-mes').value,
             periodo: document.getElementById('f-periodo').value,
             pedido: document.getElementById('f-pedido').value,
             folhaRegistro: document.getElementById('f-folha').value,

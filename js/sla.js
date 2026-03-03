@@ -1,7 +1,7 @@
 const SLAView = {
   render() {
     const records = ControlState.records || [];
-    const active = records.filter(r => r.stage !== 'concluido');
+    const active = records.filter(r => r.stage !== 'faturado');
     const sd = active.map(r => ({ ...r, sla: this.slaCalc(r) }));
     const okN = sd.filter(r => r.sla.status === 'ok').length;
     const wN = sd.filter(r => r.sla.status === 'warn').length;
@@ -15,7 +15,7 @@ const SLAView = {
       <div class="kpi kr"><div class="klabel">Fora do Prazo</div><div class="kvalue n" style="color:var(--danger)">${dN}</div><div class="kfoot">SLA expirado</div></div>
     </div>`;
 
-    const blocks = STAGES.filter(s => s.id !== 'concluido').map(s => {
+    const blocks = STAGES.filter(s => s.id !== 'faturado').map(s => {
       const items = sd.filter(r => r.stage === s.id); if (!items.length) return '';
       const late = items.filter(r => r.sla.status === 'danger').length;
 
@@ -46,23 +46,23 @@ const SLAView = {
       </div>`;
     }).join('');
 
-    const cnl = records.filter(r => r.stage === 'concluido');
-    let cBox = '';
-    if (cnl.length > 0) {
-      cBox = `<div class="tcard" style="padding:13px 18px;display:flex;align-items:center;gap:14px;margin-bottom:14px;">
+    const fat = records.filter(r => r.stage === 'faturado');
+    let fatBox = '';
+    if (fat.length > 0) {
+      fatBox = `<div class="tcard" style="padding:13px 18px;display:flex;align-items:center;gap:14px;margin-bottom:14px;">
         <span style="width:7px;height:7px;border-radius:50%;background:var(--teal);flex-shrink:0"></span>
-        <div><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--teal)">Planilhas Concluídas</div><div style="font-size:12px;color:var(--text-3);margin-top:2px">${cnl.length} boletins · ${fmt(cnl.reduce((s, r) => s + (Number(r.medir) || 0), 0))}</div></div>
+        <div><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--teal)">Faturados</div><div style="font-size:12px;color:var(--text-3);margin-top:2px">${fat.length} boletins · ${fmt(fat.reduce((s, r) => s + (Number(r.medir) || 0), 0))}</div></div>
         <span class="badge" style="background:rgba(20,184,166,0.1);color:var(--teal);margin-left:auto">SLA Encerrado</span>
       </div>`;
     }
 
     const container = document.getElementById('sla-view');
-    if (container) container.innerHTML = kpis + blocks + cBox;
+    if (container) container.innerHTML = kpis + blocks + fatBox;
   },
 
   slaCalc(r) {
     const s = stageObj(r.stage);
-    if (r.stage === 'concluido') return { status: 'ok', days: 0, max: null, pct: 100, label: 'Concluído' };
+    if (r.stage === 'faturado') return { status: 'ok', days: 0, max: null, pct: 100, label: 'Faturado' };
     if (!s.sla) return { status: 'neut', days: null, max: null, pct: null, label: '—' };
     const apDate = parsePtDate(r.dataAprovacao);
     if (!apDate) return { status: 'neut', days: null, max: null, pct: null, label: 'Sem data' };

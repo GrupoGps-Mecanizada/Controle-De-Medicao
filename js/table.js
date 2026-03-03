@@ -6,12 +6,13 @@ const TableView = {
 
     let rows = '';
     if (f.length === 0) {
-      rows = `<tr><td colspan="12" class="empty-td">Nenhum boletim encontrado para os filtros selecionados.</td></tr>`;
+      rows = `<tr><td colspan="13" class="empty-td">Nenhum boletim encontrado para os filtros selecionados.</td></tr>`;
     } else {
       rows = f.map(r => {
         const s = stageObj(r.stage);
         return `<tr>
         <td class="tc-cr">${r.cr}</td>
+        <td class="tc-gray">${r.mes || '—'}</td>
         <td class="tc-gray">${r.periodo || '—'}</td>
         <td><div class="tc-desc" title="${r.descricao}">${r.descricao}</div></td>
         <td class="tc-mono">${r.pedido || '—'}</td>
@@ -37,7 +38,7 @@ const TableView = {
       <div class="tscroll">
         <table>
           <thead>
-            <tr><th>CR</th><th>Período</th><th>Descrição</th><th>Pedido</th><th>Folha Reg.</th><th class="r">Medir (R$)</th><th>Dt. Envio</th><th class="r">Val. BM</th><th class="r">Glosa</th><th>Dt. Aprov.</th><th>Etapa</th><th>Ações</th></tr>
+            <tr><th>CR</th><th>Mês</th><th>Período</th><th>Descrição</th><th>Pedido</th><th>Folha Reg.</th><th class="r">Medir (R$)</th><th>Dt. Envio</th><th class="r">Val. BM</th><th class="r">Glosa</th><th>Dt. Aprov.</th><th>Etapa</th><th>Ações</th></tr>
           </thead>
           <tbody>${rows}</tbody>
         </table>
@@ -63,6 +64,7 @@ const TableView = {
         (r.descricao && r.descricao.toLowerCase().includes(lowerQ)) ||
         (r.pedido && r.pedido.includes(lowerQ)) ||
         (r.cr && r.cr.includes(lowerQ)) ||
+        (r.mes && r.mes.toLowerCase().includes(lowerQ)) ||
         (r.folhaRegistro && r.folhaRegistro.includes(lowerQ));
       return matchCR && matchStage && matchQ;
     });

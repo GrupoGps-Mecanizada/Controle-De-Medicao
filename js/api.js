@@ -76,6 +76,7 @@ const API = {
     mapToDB(r) {
         return {
             cr: r.cr,
+            mes: r.mes,
             periodo: r.periodo,
             pedido: r.pedido,
             folha_registro: r.folhaRegistro,
@@ -94,6 +95,7 @@ const API = {
         return {
             id: r.id,
             cr: r.cr,
+            mes: r.mes,
             periodo: r.periodo,
             pedido: r.pedido,
             folhaRegistro: r.folha_registro,
