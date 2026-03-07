@@ -6,11 +6,19 @@ const Navigation = {
 
     bindEvents() {
         const menuBtn = document.getElementById('nav-menu-btn');
-        const closeBtn = document.getElementById('nav-menu-close');
         const overlay = document.getElementById('nav-menu-overlay');
+        const panel   = overlay?.querySelector('.nav-menu-panel');
 
         if (menuBtn) menuBtn.addEventListener('click', () => overlay.classList.remove('hidden'));
-        if (closeBtn) closeBtn.addEventListener('click', () => overlay.classList.add('hidden'));
+
+        // Fechar ao clicar fora do painel (no overlay escuro)
+        if (overlay) {
+            overlay.addEventListener('click', (e) => {
+                if (!panel || !panel.contains(e.target)) {
+                    overlay.classList.add('hidden');
+                }
+            });
+        }
 
         document.querySelectorAll('.nav-menu-item').forEach(btn => {
             btn.addEventListener('click', (e) => {

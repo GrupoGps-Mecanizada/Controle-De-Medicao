@@ -26,7 +26,7 @@
   --teal: #14b8a6;
   --topbar-height: 48px;
   --font-display: 'Inter', sans-serif;
-  --font-mono: 'Inter', sans-serif;
+  --font-mono: 'IBM Plex Mono', 'Fira Mono', 'Consolas', monospace;
   --radius: 12px;
   --shadow: 0 2px 12px #0000000a;
   --shadow-lg: 0 6px 28px #00000010;

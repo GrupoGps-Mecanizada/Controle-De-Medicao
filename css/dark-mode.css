@@ -1,0 +1,685 @@
+/* ===================== DARK MODE ===================== */
+/* Ativado por data-theme="dark" no <html> */
+
+[data-theme="dark"] {
+    --bg-0: #0d1117;
+    --bg-1: #161b22;
+    --bg-2: #1e2530;
+    --bg-3: #252d3a;
+    --bg-4: #2d3748;
+    --border: #2a3447;
+    --border-bright: #374258;
+    --accent: #4a9eff;
+    --accent-dim: #3a8aef;
+    --accent-glow: rgba(74,158,255,0.08);
+    --text-1: #e6edf3;
+    --text-2: #9fb3c8;
+    --text-3: #5e7a96;
+    --green: #26d97f;
+    --orange: #f97316;
+    --purple: #9b72ff;
+    --yellow: #f0a946;
+    --red: #f25c6e;
+    --cyan: #22d3ee;
+    --blue: #4a9eff;
+    --shadow: 0 2px 12px rgba(0,0,0,0.3);
+    --shadow-lg: 0 6px 28px rgba(0,0,0,0.4);
+}
+
+/* ===== BODY ===== */
+[data-theme="dark"] body {
+    background: var(--bg-0);
+    color: var(--text-1);
+}
+
+/* ===== APP / MAIN ===== */
+[data-theme="dark"] #app {
+    background: var(--bg-0);
+}
+
+[data-theme="dark"] #main {
+    background: var(--bg-0);
+}
+
+/* ===== TOPBAR ===== */
+[data-theme="dark"] #topbar {
+    background: var(--bg-1);
+    border-bottom-color: var(--border);
+}
+
+[data-theme="dark"] .hub-btn-explicit {
+    background: var(--bg-3);
+    color: var(--text-1);
+    border-color: var(--border);
+}
+
+[data-theme="dark"] .hub-btn-explicit:hover {
+    background: var(--bg-4);
+}
+
+[data-theme="dark"] #global-search {
+    background: var(--bg-2) !important;
+    color: var(--text-1) !important;
+    border-color: var(--border) !important;
+}
+
+[data-theme="dark"] #global-search::placeholder {
+    color: var(--text-3);
+}
+
+[data-theme="dark"] .topbar-icon-btn {
+    border-color: var(--border);
+    color: var(--text-2);
+}
+
+[data-theme="dark"] .topbar-icon-btn:hover {
+    background: var(--bg-3);
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+/* ===== CENTER LOGO ===== */
+[data-theme="dark"] .logo-gps {
+    color: #a5c8f8;
+}
+
+[data-theme="dark"] .logo-mecanizada {
+    color: var(--accent);
+}
+
+[data-theme="dark"] .logo-gestao {
+    color: var(--text-3);
+}
+
+/* ===== NAV MENU ===== */
+[data-theme="dark"] .nav-menu-panel {
+    background: var(--bg-1);
+    border-right-color: var(--border);
+}
+
+[data-theme="dark"] .nav-menu-header {
+    border-bottom-color: var(--border);
+    color: var(--text-1);
+}
+
+[data-theme="dark"] .nav-menu-footer {
+    background: var(--bg-2);
+    border-top-color: var(--border);
+}
+
+[data-theme="dark"] .nav-menu-item {
+    color: var(--text-2);
+}
+
+[data-theme="dark"] .nav-menu-item:hover {
+    background: var(--bg-3);
+    color: var(--accent);
+}
+
+[data-theme="dark"] .nav-menu-item.active {
+    background: var(--accent-glow);
+    color: var(--accent);
+}
+
+[data-theme="dark"] .nav-menu-section-title {
+    color: var(--text-3);
+}
+
+[data-theme="dark"] .nav-menu-stat {
+    color: var(--text-3);
+}
+
+[data-theme="dark"] .nav-menu-stat strong {
+    color: var(--text-1);
+}
+
+[data-theme="dark"] #logout-btn {
+    background: var(--bg-3) !important;
+    color: var(--text-2) !important;
+    border-color: var(--border) !important;
+}
+
+/* ===== DASHBOARD ===== */
+[data-theme="dark"] .kpi-card {
+    background: var(--bg-1);
+    border-color: var(--border);
+}
+
+[data-theme="dark"] .kpi-icon {
+    background: var(--bg-2);
+}
+
+[data-theme="dark"] .chart-card {
+    background: var(--bg-1);
+    border-color: var(--border);
+}
+
+[data-theme="dark"] .chart-header {
+    border-bottom-color: var(--border);
+}
+
+[data-theme="dark"] .chart-title {
+    color: var(--text-1);
+}
+
+[data-theme="dark"] .data-table th {
+    background: var(--bg-2);
+    color: var(--text-3);
+}
+
+[data-theme="dark"] .data-table td {
+    border-bottom-color: var(--border);
+    color: var(--text-2);
+}
+
+[data-theme="dark"] .data-table tr:hover td {
+    background: var(--bg-2);
+}
+
+[data-theme="dark"] .mini-card {
+    background: var(--bg-2);
+    border-color: var(--border);
+}
+
+/* ===== FILTROS ===== */
+[data-theme="dark"] .filter-dropdown-panel {
+    background: var(--bg-1);
+    border-color: var(--border);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+
+[data-theme="dark"] .filter-dropdown-header {
+    border-bottom-color: var(--border);
+    color: var(--text-1);
+}
+
+[data-theme="dark"] .filter-checkbox-item:hover {
+    background: var(--bg-3);
+}
+
+[data-theme="dark"] .filter-checkbox {
+    background: var(--bg-2);
+    border-color: var(--border-bright);
+}
+
+[data-theme="dark"] .filter-checkbox-label {
+    color: var(--text-2);
+}
+
+[data-theme="dark"] .filter-checkbox-count {
+    color: var(--text-3);
+}
+
+[data-theme="dark"] .filter-accordion {
+    border-bottom-color: var(--border);
+}
+
+[data-theme="dark"] .filter-accordion-header:hover {
+    background: var(--bg-3);
+}
+
+[data-theme="dark"] .filter-accordion-title {
+    color: var(--text-2);
+}
+
+/* ===== MODAL ===== */
+[data-theme="dark"] .modal-overlay {
+    background: rgba(0,0,0,0.6);
+}
+
+[data-theme="dark"] .modal-box,
+[data-theme="dark"] #modal {
+    background: var(--bg-1);
+    border-color: var(--border);
+}
+
+[data-theme="dark"] .modal-header {
+    background: var(--bg-2);
+    border-bottom-color: var(--border);
+}
+
+[data-theme="dark"] .modal-title {
+    color: var(--text-1);
+}
+
+[data-theme="dark"] .modal-footer {
+    background: var(--bg-2);
+    border-top-color: var(--border);
+}
+
+/* ===== FORM FIELDS ===== */
+[data-theme="dark"] .finput,
+[data-theme="dark"] .finp,
+[data-theme="dark"] .fsel {
+    background: var(--bg-2) !important;
+    border-color: var(--border) !important;
+    color: var(--text-1) !important;
+}
+
+[data-theme="dark"] .finput:focus,
+[data-theme="dark"] .finp:focus,
+[data-theme="dark"] .fsel:focus {
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 0 3px var(--accent-glow) !important;
+}
+
+[data-theme="dark"] .finput::placeholder,
+[data-theme="dark"] .finp::placeholder {
+    color: var(--text-3);
+}
+
+[data-theme="dark"] select option {
+    background: var(--bg-2);
+    color: var(--text-1);
+}
+
+/* ===== BUTTONS ===== */
+[data-theme="dark"] .btn.close-modal {
+    background: var(--bg-2);
+    border-color: var(--border);
+    color: var(--text-2);
+}
+
+[data-theme="dark"] .close-modal {
+    color: var(--text-3);
+}
+
+/* ===== TABLE (antiga) ===== */
+[data-theme="dark"] .tcard {
+    background: var(--bg-1);
+    border-color: var(--border);
+}
+
+[data-theme="dark"] .thead-bar {
+    background: var(--bg-2);
+    border-bottom-color: var(--border);
+}
+
+[data-theme="dark"] .tscroll table thead th {
+    background: var(--bg-2);
+    color: var(--text-3);
+    border-color: var(--border);
+}
+
+[data-theme="dark"] .tscroll table tbody td {
+    border-bottom-color: var(--border);
+    color: var(--text-2);
+}
+
+[data-theme="dark"] .tscroll table tbody tr:hover td {
+    background: var(--bg-2);
+}
+
+[data-theme="dark"] .tfoot {
+    background: var(--bg-2);
+    border-top-color: var(--border);
+    color: var(--text-3);
+}
+
+/* ===== TOAST ===== */
+[data-theme="dark"] .toast {
+    background: var(--bg-2);
+    border-color: var(--border);
+    color: var(--text-1);
+}
+
+/* ===== LOADING ===== */
+[data-theme="dark"] #loading-screen {
+    background: var(--bg-0) !important;
+}
+
+/* ===== LOGIN ===== */
+[data-theme="dark"] .login-box {
+    background: var(--bg-1);
+    border-color: var(--border);
+}
+
+[data-theme="dark"] .login-input-group input {
+    background: var(--bg-2);
+    border-color: var(--border);
+    color: var(--text-1);
+}
+
+[data-theme="dark"] .login-input-group label {
+    color: var(--text-3);
+}
+
+/* ===== SCROLLBAR ===== */
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+    background: var(--border-bright);
+}
+
+/* ===== HUB ===== */
+[data-theme="dark"] .hub-dropdown-panel {
+    background: var(--bg-1);
+    border-color: var(--border);
+}
+
+[data-theme="dark"] .hub-header {
+    background: var(--bg-2);
+    border-bottom-color: var(--border);
+}
+
+[data-theme="dark"] .hub-sector {
+    background: var(--bg-2);
+    border-color: var(--border);
+}
+
+[data-theme="dark"] .hub-sector-header {
+    background: var(--bg-2);
+}
+
+[data-theme="dark"] .hub-sector-header:hover {
+    background: var(--bg-3);
+}
+
+[data-theme="dark"] .hub-sector-body {
+    background: var(--bg-2);
+    border-top-color: var(--border);
+}
+
+[data-theme="dark"] .hub-link {
+    color: var(--text-2);
+}
+
+[data-theme="dark"] .hub-link:hover {
+    background: var(--bg-3);
+    color: var(--text-1);
+}
+
+[data-theme="dark"] .hub-links {
+    border-left-color: var(--border);
+}
+
+/* ===== TABELA EXCEL (nova) ===== */
+[data-theme="dark"] .excel-wrap {
+    background: var(--bg-0);
+}
+
+[data-theme="dark"] .et-toolbar {
+    background: var(--bg-1);
+    border-bottom-color: var(--border);
+}
+
+[data-theme="dark"] .et-toolbar-sep {
+    background: var(--border);
+}
+
+[data-theme="dark"] .excel-btn {
+    border-color: var(--border);
+    color: var(--text-2);
+}
+
+[data-theme="dark"] .excel-btn:hover {
+    background: var(--bg-3);
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+[data-theme="dark"] .excel-btn.active,
+[data-theme="dark"] .excel-btn.has-value {
+    background: var(--accent-glow);
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+[data-theme="dark"] .excel-status-bar {
+    background: var(--bg-2);
+    border-bottom-color: var(--border);
+    color: var(--text-3);
+}
+
+[data-theme="dark"] .excel-table-container {
+    background: var(--bg-1);
+}
+
+[data-theme="dark"] .excel-table thead th {
+    background: var(--bg-2);
+    color: var(--text-2);
+    border-color: var(--border);
+}
+
+[data-theme="dark"] .excel-table tbody td {
+    background: var(--bg-1);
+    border-color: var(--border);
+    color: var(--text-2);
+}
+
+[data-theme="dark"] .excel-table tbody tr:hover td {
+    background: var(--bg-2);
+}
+
+[data-theme="dark"] .excel-table tbody tr.selected td {
+    background: var(--accent-glow);
+}
+
+[data-theme="dark"] .td-rownum {
+    background: var(--bg-2) !important;
+    color: var(--text-3);
+    border-right-color: var(--border-bright) !important;
+}
+
+[data-theme="dark"] .col-rownum {
+    background: var(--bg-2) !important;
+    border-right-color: var(--border-bright) !important;
+}
+
+[data-theme="dark"] .excel-pagination {
+    background: var(--bg-1);
+    border-top-color: var(--border);
+}
+
+[data-theme="dark"] .page-btn {
+    border-color: var(--border);
+    color: var(--text-2);
+}
+
+[data-theme="dark"] .page-btn:hover:not(:disabled) {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-glow);
+}
+
+[data-theme="dark"] .page-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+}
+
+[data-theme="dark"] .page-size-select {
+    background: var(--bg-2);
+    border-color: var(--border);
+    color: var(--text-2);
+}
+
+/* ===== EXCEL COMPACT TOOLBAR (nova) ===== */
+[data-theme="dark"] .excel-search-wrap {
+    background: var(--bg-2);
+    border-color: var(--border);
+}
+
+[data-theme="dark"] .et-search-input {
+    color: var(--text-1);
+}
+
+[data-theme="dark"] .et-search-icon {
+    color: var(--text-3);
+}
+
+[data-theme="dark"] .et-search-clear {
+    color: var(--text-3);
+}
+
+/* ===== COLUMN PICKER ===== */
+[data-theme="dark"] .et-col-picker-panel {
+    background: var(--bg-1);
+    border-color: var(--border);
+}
+
+[data-theme="dark"] .et-col-picker-title {
+    color: var(--text-3);
+    border-bottom-color: var(--border);
+}
+
+[data-theme="dark"] .et-col-picker-item {
+    color: var(--text-2);
+}
+
+[data-theme="dark"] .et-col-picker-item:hover {
+    background: var(--bg-3);
+    color: var(--text-1);
+}
+
+/* ===== HIGHLIGHT MARK ===== */
+[data-theme="dark"] mark.et-hl {
+    background: rgba(240, 169, 70, 0.25);
+    color: #f0a946;
+}
+
+/* ===== TH FILTER BUTTON ===== */
+[data-theme="dark"] .th-filter-btn {
+    color: var(--text-3);
+}
+
+[data-theme="dark"] .th-filter-btn:hover,
+[data-theme="dark"] .th-filter-btn.active {
+    color: var(--accent);
+    background: var(--accent-glow);
+}
+
+/* ===== FLOATING FILTER PANEL ===== */
+[data-theme="dark"] .et-filter-panel {
+    background: var(--bg-1);
+    border-color: var(--border);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+
+[data-theme="dark"] .et-fp-header {
+    border-bottom-color: var(--border);
+}
+
+[data-theme="dark"] .et-fp-title {
+    color: var(--text-3);
+}
+
+[data-theme="dark"] .et-fp-close {
+    color: var(--text-3);
+}
+
+[data-theme="dark"] .et-fp-close:hover {
+    color: var(--text-1);
+    background: var(--bg-3);
+}
+
+[data-theme="dark"] .et-fp-sort {
+    border-bottom-color: var(--border);
+}
+
+[data-theme="dark"] .et-fp-sort-btn {
+    border-color: var(--border);
+    color: var(--text-2);
+    background: transparent;
+}
+
+[data-theme="dark"] .et-fp-sort-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-glow);
+}
+
+[data-theme="dark"] .et-fp-sort-btn.active {
+    border-color: var(--accent);
+    background: var(--accent-glow);
+    color: var(--accent);
+}
+
+[data-theme="dark"] .et-fp-text-wrap {
+    border-bottom-color: var(--border);
+}
+
+[data-theme="dark"] .et-fp-text {
+    background: var(--bg-2);
+    border-color: var(--border);
+    color: var(--text-1);
+}
+
+[data-theme="dark"] .et-fp-text:focus {
+    border-color: var(--accent);
+}
+
+[data-theme="dark"] .et-fp-text::placeholder {
+    color: var(--text-3);
+}
+
+[data-theme="dark"] .et-fp-options {
+    background: var(--bg-1);
+}
+
+[data-theme="dark"] .et-fp-option {
+    color: var(--text-2);
+}
+
+[data-theme="dark"] .et-fp-option:hover {
+    background: var(--bg-3);
+    color: var(--text-1);
+}
+
+[data-theme="dark"] .et-fp-check {
+    border-color: var(--border-bright);
+    background: transparent;
+}
+
+[data-theme="dark"] .et-fp-footer {
+    border-top-color: var(--border);
+    background: var(--bg-2);
+}
+
+[data-theme="dark"] .et-fp-btn-clear {
+    border-color: var(--border);
+    color: var(--text-2);
+    background: transparent;
+}
+
+[data-theme="dark"] .et-fp-btn-clear:hover {
+    border-color: var(--red);
+    color: var(--red);
+}
+
+/* ===== MASS EDIT BAR ===== */
+[data-theme="dark"] .mass-edit-bar {
+    background: var(--accent);
+    color: #fff;
+}
+
+/* ===== PENCIL ICON EDITING ===== */
+[data-theme="dark"] .cell-edit-icon {
+    color: var(--text-3);
+}
+
+[data-theme="dark"] .cell-edit-icon:hover {
+    color: var(--accent);
+    background: var(--accent-glow);
+}
+
+/* ===== INLINE EDITING ===== */
+[data-theme="dark"] .excel-table tbody tr.editing td {
+    background: rgba(74, 158, 255, 0.05);
+}
+
+[data-theme="dark"] .inline-edit-input {
+    background: var(--bg-2);
+    border-color: var(--accent);
+    color: var(--text-1);
+}
+
+/* ===== ROW ACTION BUTTONS ===== */
+[data-theme="dark"] .row-action-btn {
+    border-color: var(--border);
+    color: var(--text-3);
+}
+
+[data-theme="dark"] .row-action-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-glow);
+}
