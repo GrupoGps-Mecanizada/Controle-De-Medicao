@@ -1,112 +1,37 @@
 'use strict';
 
 /**
- * Controle de Medicao — Authentication Module (Via Central SGE SSO com fallback local)
- * Handles token recovery, session management, and role-based permissions
- *
- * BYPASS ativo para rollout gradual — login local via Supabase Auth continua funcionando.
- * Quando a Central SSO estiver 100%, basta comentar a linha SGE_SSO_BYPASS = true.
+ * Controle de Medição — Login (via SGE.acesso do sge-core)
+ * Usa a sessão real do login da Central (Supabase Auth). Sem sessão, vai para o login da Central.
+ * Na dúvida (erro, rede), não entra.
  */
 
-// ========== SSO MODE ==========
-// SSO ATIVO — em produção (GitHub Pages) o login é obrigatório pelo Central SGE.
-// Em ambiente local (localhost / file://) o bypass é ativado automaticamente pelo index.html.
-// window.SGE_SSO_BYPASS = true; // ← descomente SOMENTE para rollback emergencial
+const SLUG_SISTEMA = 'controle_medicao_adm';
 
-// Instancia o SDK passando o slug do sistema
-const ssoClient = new window.SgeAuthSDK('controle_medicao_adm');
+// Régua única → nomes antigos (ver "Régua única de acesso - especificação" no cofre).
+const PERFIL_POR_PAPEL = { ADMIN: 'ADM', GESTOR: 'GESTAO' };
 
 window.Auth = {
     currentUser: null,
 
-    /**
-     * Initialize Auth — tenta SSO, senao fallback para Supabase local
-     */
     async init() {
-        // 1. Tenta autenticacao via SSO Token
-        const userData = await ssoClient.checkAuth();
-
-        if (userData) {
-            console.log('[MEDICAO AUTH] Autenticado via SSO:', userData.nome);
-            this.updateCurrentUser({
-                id: userData.id,
-                email: userData.email,
-                nome: userData.nome,
-                perfil: userData.perfil || 'VISAO'
-            });
-
-            // Recuperar access_token da sessao Supabase (necessario para RLS)
-            let token = null;
-            try {
-                if (window.supabase) {
-                    const { data: { session } } = await window.supabase.auth.getSession();
-                    token = session?.access_token || null;
-                }
-            } catch (e) {
-                console.warn('[MEDICAO AUTH] Nao foi possivel recuperar token Supabase:', e);
-            }
-
-            await this.registerSession(userData.id, token);
-            return true;
+        const core = window.SGECore;
+        if (!core || !core.acesso) {
+            // Sem o sge-core (falha ao baixar) não dá para conferir o login: não entra.
+            const status = document.getElementById('loading-status');
+            if (status) status.textContent = 'Não consegui carregar o login. Confira a internet e recarregue a página.';
+            await new Promise(() => {});
         }
 
-        if (ssoClient.isBypass()) {
-            // BYPASS: tenta autenticacao via sessao Supabase local
-            console.log('[MEDICAO AUTH] BYPASS ativo — verificando sessao Supabase local...');
-            try {
-                if (window.supabase) {
-                    const { data: { session } } = await window.supabase.auth.getSession();
-
-                    // Listen for auth state changes (local mode)
-                    supabase.auth.onAuthStateChange((_event, session) => {
-                        if (session) {
-                            this._updateFromSupabaseUser(session.user);
-                        } else {
-                            this.currentUser = null;
-                        }
-                    });
-
-                    if (session && session.user) {
-                        console.log('[MEDICAO AUTH] Sessao Supabase local encontrada:', session.user.email);
-                        this._updateFromSupabaseUser(session.user);
-                        await this.registerSession(session.user.id, session.access_token);
-                        return true;
-                    }
-                }
-            } catch (e) {
-                console.warn('[MEDICAO AUTH] Erro ao verificar sessao Supabase:', e);
-            }
-
-            console.log('[MEDICAO AUTH] Sem sessao — exibindo login local');
-            return false;
-        }
-
-        // SSO ativo mas sem token — ssoClient ja redirecionou
-        return false;
-    },
-
-    /**
-     * Popula currentUser a partir de user do Supabase Auth (modo local/bypass)
-     * Preserva a logica original de roles por dominio de e-mail
-     */
-    _updateFromSupabaseUser(user) {
-        const email = user.email || '';
-        let perfil = user.user_metadata?.perfil || 'VISAO';
-
-        if (email.endsWith('@sge') || email.endsWith('@sge.com')) {
-            perfil = 'ADM';
-        } else if (email.endsWith('@gestaomecanizada.com')) {
-            perfil = 'GESTAO';
-        } else if (email.endsWith('@mecanizada.com')) {
-            perfil = 'VISAO';
-        }
-
+        // Só continua se a pessoa estiver logada e tiver acesso a este sistema.
+        const r = await core.acesso.entrar(SLUG_SISTEMA);
         this.updateCurrentUser({
-            id: user.id,
-            email: email,
-            nome: user.user_metadata?.full_name || email.split('@')[0],
-            perfil: perfil
+            id: r.usuario.id,
+            email: r.usuario.email,
+            nome: r.usuario.nome,
+            perfil: PERFIL_POR_PAPEL[r.papel] || 'VISAO'
         });
+        return true;
     },
 
     /**
@@ -125,188 +50,12 @@ window.Auth = {
         this.applyRoleUI(this.currentUser.perfil);
     },
 
-    /**
-     * Register session in sge_central_sessoes for the Radar
-     */
-    async registerSession(userId, accessToken) {
-        try {
-            const existingId = localStorage.getItem('sge_session_id');
-            if (existingId) {
-                console.log('[MEDICAO AUTH] Sessao ja registrada:', existingId);
-                return;
-            }
+    // O login agora é só pela Central.
+    async login() { return { success: false, error: 'Entre pela Central do SGE.' }; },
+    async register() { return { success: false, error: 'O cadastro é feito pela Central do SGE.' }; },
 
-            if (!accessToken) {
-                try {
-                    if (window.supabase) {
-                        const { data: { session } } = await window.supabase.auth.getSession();
-                        accessToken = session?.access_token || null;
-                    }
-                } catch (e) { /* ignore */ }
-            }
-
-            if (!accessToken) {
-                console.warn('[MEDICAO AUTH] Sem token autenticado — sessao nao sera registrada (RLS bloqueia anon)');
-                return;
-            }
-
-            const SUPABASE_URL = window.SUPABASE_URL || window.Auth._getSupabaseUrl();
-            const ANON_KEY = window.SUPABASE_KEY || window.Auth._getAnonKey();
-            if (!SUPABASE_URL || !ANON_KEY) return;
-
-            const headers = {
-                'apikey': ANON_KEY,
-                'Authorization': `Bearer ${accessToken}`,
-                'Content-Type': 'application/json',
-                'Content-Profile': 'gps_compartilhado',
-                'Accept-Profile': 'gps_compartilhado',
-                'Prefer': 'return=representation'
-            };
-
-            // Get sistema_id for this app slug
-            const sysResp = await fetch(
-                `${SUPABASE_URL}/rest/v1/sge_central_sistemas?slug=eq.controle_medicao_adm&select=id`,
-                { headers: { 'apikey': ANON_KEY, 'Authorization': `Bearer ${accessToken}`, 'Accept-Profile': 'gps_compartilhado', 'Accept': 'application/vnd.pgrst.object+json' } }
-            );
-
-            if (!sysResp.ok) {
-                console.warn('[MEDICAO AUTH] Nao conseguiu buscar sistema para sessao');
-                return;
-            }
-
-            const sysData = await sysResp.json();
-            if (!sysData?.id) return;
-
-            // Insert session
-            const sessResp = await fetch(`${SUPABASE_URL}/rest/v1/sge_central_sessoes`, {
-                method: 'POST',
-                headers,
-                body: JSON.stringify({
-                    usuario_id: userId,
-                    sistema_id: sysData.id,
-                    ip_address: '0.0.0.0',
-                    user_agent: navigator.userAgent.substring(0, 200),
-                    expira_em: new Date(Date.now() + (1000 * 60 * 60 * 8)).toISOString()
-                })
-            });
-
-            if (sessResp.ok) {
-                const sessData = await sessResp.json();
-                const sessionId = Array.isArray(sessData) ? sessData[0]?.id : sessData?.id;
-                if (sessionId) {
-                    localStorage.setItem('sge_session_id', sessionId);
-                    localStorage.setItem('sge_session_user_id', userId);
-                    localStorage.setItem('sge_session_token', accessToken);
-                    localStorage.setItem('sge_session_user_name', this.currentUser?.nome || 'Usuario');
-                    localStorage.setItem('sge_session_user_email', this.currentUser?.email || '');
-                    localStorage.setItem('sge_session_app_slug', 'controle_medicao_adm');
-                    localStorage.setItem('sge_session_app_name', 'Controle de Medicao');
-                    console.log('[MEDICAO AUTH] Sessao registrada para Radar:', sessionId);
-                    if (window.SGE_SESSION_PING) window.SGE_SESSION_PING.start();
-                }
-            } else {
-                const errText = await sessResp.text().catch(() => '');
-                console.warn('[MEDICAO AUTH] Falha ao registrar sessao:', sessResp.status, errText);
-            }
-        } catch (err) {
-            console.warn('[MEDICAO AUTH] Erro ao registrar sessao:', err);
-        }
-    },
-
-    /**
-     * Helper: resolve Supabase URL from config or supabase client
-     */
-    _getSupabaseUrl() {
-        try {
-            if (window.supabase?.supabaseUrl) return window.supabase.supabaseUrl;
-            if (window.CONFIG?.SUPABASE_URL) return window.CONFIG.SUPABASE_URL;
-        } catch (e) { }
-        return null;
-    },
-
-    _getAnonKey() {
-        try {
-            if (window.supabase?.supabaseKey) return window.supabase.supabaseKey;
-            if (window.CONFIG?.SUPABASE_KEY) return window.CONFIG.SUPABASE_KEY;
-        } catch (e) { }
-        return null;
-    },
-
-    /**
-     * Login local via Supabase Auth (usado em BYPASS mode)
-     */
-    async login(email, password) {
-        if (!window.supabase) return { success: false, error: 'Supabase nao configurado' };
-
-        try {
-            const { data, error } = await supabase.auth.signInWithPassword({
-                email: email,
-                password: password,
-            });
-
-            if (error) throw error;
-
-            this._updateFromSupabaseUser(data.user);
-            await this.registerSession(data.user.id, data.session?.access_token);
-            return { success: true, user: this.currentUser };
-        } catch (e) {
-            return { success: false, error: 'Credenciais invalidas ou erro no login' };
-        }
-    },
-
-    /**
-     * Register local via Supabase Auth (usado em BYPASS mode)
-     */
-    async register(email, password, name) {
-        if (!window.supabase) return { success: false, error: 'Supabase nao configurado' };
-
-        try {
-            const { data, error } = await supabase.auth.signUp({
-                email: email,
-                password: password,
-                options: {
-                    data: {
-                        perfil: 'VISAO',
-                        full_name: name
-                    }
-                }
-            });
-
-            if (error) throw error;
-
-            return { success: true };
-        } catch (e) {
-            return { success: false, error: e.message || 'Erro ao criar conta' };
-        }
-    },
-
-    /**
-     * Logout
-     */
     async logout() {
-        console.log('[MEDICAO AUTH] Logout');
-
-        // Clean up session data
-        try {
-            localStorage.removeItem('sge_session_id');
-            localStorage.removeItem('sge_session_user_id');
-            localStorage.removeItem('sge_session_token');
-            localStorage.removeItem('sge_session_user_name');
-            localStorage.removeItem('sge_session_user_email');
-            localStorage.removeItem('sge_session_app_slug');
-            localStorage.removeItem('sge_session_app_name');
-        } catch (e) { }
-
-        // Stop ping
-        if (window.SGE_SESSION_PING) window.SGE_SESSION_PING.stop();
-
-        if (ssoClient.isBypass()) {
-            if (window.supabase) await supabase.auth.signOut();
-            window.location.reload();
-            return;
-        }
-
-        ssoClient.logout();
+        window.SGECore.acesso.sair(SLUG_SISTEMA);
     },
 
     /**
